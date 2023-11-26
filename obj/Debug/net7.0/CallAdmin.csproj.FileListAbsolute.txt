@@ -1,0 +1,12 @@
+C:\Users\marcos\Documents\mack\csgo\cs2\CallAdmin\bin\Debug\net7.0\CallAdmin.deps.json
+C:\Users\marcos\Documents\mack\csgo\cs2\CallAdmin\bin\Debug\net7.0\CallAdmin.dll
+C:\Users\marcos\Documents\mack\csgo\cs2\CallAdmin\bin\Debug\net7.0\CallAdmin.pdb
+C:\Users\marcos\Documents\mack\csgo\cs2\CallAdmin\obj\Debug\net7.0\CallAdmin.csproj.AssemblyReference.cache
+C:\Users\marcos\Documents\mack\csgo\cs2\CallAdmin\obj\Debug\net7.0\CallAdmin.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\marcos\Documents\mack\csgo\cs2\CallAdmin\obj\Debug\net7.0\CallAdmin.AssemblyInfoInputs.cache
+C:\Users\marcos\Documents\mack\csgo\cs2\CallAdmin\obj\Debug\net7.0\CallAdmin.AssemblyInfo.cs
+C:\Users\marcos\Documents\mack\csgo\cs2\CallAdmin\obj\Debug\net7.0\CallAdmin.csproj.CoreCompileInputs.cache
+C:\Users\marcos\Documents\mack\csgo\cs2\CallAdmin\obj\Debug\net7.0\CallAdmin.dll
+C:\Users\marcos\Documents\mack\csgo\cs2\CallAdmin\obj\Debug\net7.0\refint\CallAdmin.dll
+C:\Users\marcos\Documents\mack\csgo\cs2\CallAdmin\obj\Debug\net7.0\CallAdmin.pdb
+C:\Users\marcos\Documents\mack\csgo\cs2\CallAdmin\obj\Debug\net7.0\ref\CallAdmin.dll
