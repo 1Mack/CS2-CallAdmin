@@ -93,7 +93,7 @@ namespace CallAdmin
       string identifier = RandomString(15);
 
       string result = await SendMessageToDiscord(Payload(player.PlayerName, player.SteamID.ToString(), target.PlayerName,
-           target.SteamID.ToString(), hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, parts[0], identifier));
+           target.SteamID.ToString(), hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, parts[0], identifier, Config.EmbedMessages.Content));
 
       if (!result.All(char.IsDigit))
       {
@@ -146,7 +146,7 @@ namespace CallAdmin
         }
 
         string result = await SendMessageToDiscord(Payload(query.victim_name, query.victim_steamid, query.suspect_name,
-                  query.suspect_steamid, query.host_name, query.host_ip, query.reason, identifier, player.PlayerName, player.SteamID.ToString()), query.message_id);
+                  query.suspect_steamid, query.host_name, query.host_ip, query.reason, identifier, Config.EmbedMessages.Content, player.PlayerName, player.SteamID.ToString()), query.message_id);
 
         if (!result.All(char.IsDigit))
         {
@@ -168,10 +168,11 @@ namespace CallAdmin
       command.ReplyToCommand($"{Config.Prefix} {Config.ChatMessages.InCoolDown}");
 
     }
-    public string Payload(string clientName, string clientSteamId, string targetName, string targetSteamId, string hostName, string hostIp, string msg, string identifier, string? adminName = null, string? adminSteamId = null)
+    public string Payload(string clientName, string clientSteamId, string targetName, string targetSteamId, string hostName, string hostIp, string msg, string identifier, string content = "", string? adminName = null, string? adminSteamId = null)
     {
       var Payload = new
       {
+        content,
         embeds = new[]
                       {
                        new

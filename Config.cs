@@ -81,7 +81,7 @@ namespace CallAdmin
   }
   public class CallAdminConfig : BasePluginConfig
   {
-    public override int Version { get; set; } = 2;
+    public override int Version { get; set; } = 3;
 
     [JsonPropertyName("Prefix")]
     public string Prefix { get; set; } = "{DEFAULT}[{GREEN}CallAdmin{DEFAULT}]";
@@ -201,5 +201,7 @@ namespace CallAdmin
     public string Ip { get; set; } = "Ip";
     [JsonPropertyName("Map")]
     public string Map { get; set; } = "Map";
+    [JsonPropertyName("Content")]
+    public string Content { get; set; } = "You can write anything here or leave it blank. Ping a member like this: <@MemberId> or a role: <@&RoleID>";
   }
 }
