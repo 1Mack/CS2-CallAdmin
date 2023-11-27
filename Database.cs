@@ -13,6 +13,7 @@ public partial class CallAdmin
       Password = Config.Database.Password,
       Database = Config.Database.Name,
       Port = (uint)Config.Database.Port,
+      ConvertZeroDateTime = true
     };
 
     DatabaseConnectionString = builder.ConnectionString;

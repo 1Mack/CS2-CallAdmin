@@ -46,7 +46,7 @@ namespace CallAdmin
         return;
       }
 
-      command.ReplyToCommand($"{Config.Prefix} ");
+      command.ReplyToCommand($"{Config.Prefix} {Config.ChatMessages.InCoolDown}");
 
     }
 
@@ -92,8 +92,8 @@ namespace CallAdmin
       }
       string identifier = RandomString(15);
 
-      string result = (await SendMessageToDiscord(Payload(player.PlayerName, player.SteamID.ToString(), target.PlayerName,
-           target.SteamID.ToString(), hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, parts[0], identifier))).TrimEnd().TrimStart();
+      string result = await SendMessageToDiscord(Payload(player.PlayerName, player.SteamID.ToString(), target.PlayerName,
+           target.SteamID.ToString(), hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, parts[0], identifier));
 
       if (!result.All(char.IsDigit))
       {
@@ -135,7 +135,7 @@ namespace CallAdmin
 
         commandCooldown[playerIndex] = DateTime.UtcNow;
 
-        string identifier = command.GetCommandString.Split(" ")[1];
+        string identifier = command.ArgString.Split(" ")[0].Trim();
 
         var query = await GetReportDatabase(identifier);
 
