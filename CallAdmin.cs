@@ -2,6 +2,7 @@
 using System.Text.Json;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Attributes;
 
 namespace CallAdmin;
 
@@ -22,15 +23,15 @@ public class ReportedPlayersClass : IReportedPlayers
   public required string EndDate { get; set; }
   // Outras propriedades e métodos...
 }
-
+[MinimumApiVersion(77)]
 public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
 {
 
   public override string ModuleName => "CallAdmin";
   public override string ModuleDescription => "Report System with database support";
   public override string ModuleAuthor => "1MaaaaaacK";
-  public override string ModuleVersion => "1.0";
-  public static int ConfigVersion => 1;
+  public override string ModuleVersion => "1.1";
+  public static int ConfigVersion => 2;
 
   private string DatabaseConnectionString = string.Empty;
 
@@ -41,8 +42,8 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
   public override void Load(bool hotReload)
   {
 
-    AddCommand($"css_{Config.CommandsPrefix.Report}", "Report a player", ReportCommand);
-    AddCommand($"css_{Config.CommandsPrefix.ReportHandled}", "Remove Admin", ReportHandledCommand);
+    AddCommand($"css_{Config.Commands.ReportPrefix}", "Report a player", ReportCommand);
+    AddCommand($"css_{Config.Commands.ReportHandledPrefix}", "Handle Report", ReportHandledCommand);
 
     BuildDatabaseConnectionString();
     TestDatabaseConnection();
@@ -65,7 +66,7 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
       }
 
       var toJson = JsonSerializer.Deserialize<IWebHookSuccess>(await result.Content.ReadAsStringAsync());
-      return string.IsNullOrEmpty(toJson?.id) ? "Não foi possível pegar o ID da mensagem" : toJson.id;
+      return string.IsNullOrEmpty(toJson?.id) ? "Unable to get message ID" : toJson.id;
 
     }
     catch (Exception e)
@@ -74,7 +75,10 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
       throw;
     }
   }
-
+  public class IWebHookSuccess
+  {
+    public required string id { get; set; }
+  }
 
 
 }
