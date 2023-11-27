@@ -10,7 +10,7 @@ namespace CallAdmin
 
     public void OnConfigParsed(CallAdminConfig config)
     {
-      if (config.Version != 4) throw new Exception($"You have a wrong config version. Delete it and restart the server to get the right version (4)!");
+      if (config.Version != ConfigVersion) throw new Exception($"You have a wrong config version. Delete it and restart the server to get the right version ({ConfigVersion})!");
 
       if (string.IsNullOrEmpty(config.Database.Host) || string.IsNullOrEmpty(config.Database.Name) || string.IsNullOrEmpty(config.Database.User))
       {
@@ -32,7 +32,7 @@ namespace CallAdmin
   }
   public class CallAdminConfig : BasePluginConfig
   {
-    public override int Version { get; set; } = 4;
+    public override int Version { get; set; } = 1;
 
     [JsonPropertyName("Prefix")]
     public string Prefix { get; set; } = "[CallAdmin]";

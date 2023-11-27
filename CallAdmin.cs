@@ -30,6 +30,8 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
   public override string ModuleDescription => "Report System with database support";
   public override string ModuleAuthor => "1MaaaaaacK";
   public override string ModuleVersion => "1.0";
+  public static int ConfigVersion => 1;
+
   private string DatabaseConnectionString = string.Empty;
 
   private DateTime[] commandCooldown = new DateTime[Server.MaxPlayers];
@@ -56,7 +58,11 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
 
       var result = string.IsNullOrEmpty(messageId) ? httpClient.PostAsync($"{Config.WebHookUrl}?wait=true", content).Result : httpClient.PatchAsync($"{Config.WebHookUrl}/messages/{messageId}", content).Result;
 
-      if (!result.IsSuccessStatusCode) return "There was an error sending the webhook";
+      if (!result.IsSuccessStatusCode)
+      {
+        Console.WriteLine(result);
+        return "There was an error sending the webhook";
+      }
 
       var toJson = JsonSerializer.Deserialize<IWebHookSuccess>(await result.Content.ReadAsStringAsync());
       return string.IsNullOrEmpty(toJson?.id) ? "Não foi possível pegar o ID da mensagem" : toJson.id;

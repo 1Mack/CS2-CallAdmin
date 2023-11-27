@@ -204,7 +204,7 @@ namespace CallAdmin
                                },
                                new
                                {
-                                   name = "Suspeito",
+                                   name = "Suspect",
                                    value =
                                        $"**Name:** {targetName}\n**SteamID:** [{new SteamID(ulong.Parse(targetSteamId)).SteamId2}](https://steamcommunity.com/profiles/{targetSteamId}/)",
                                    inline = true
@@ -217,14 +217,14 @@ namespace CallAdmin
                                },
                                new
                                {
-                                   name = "IP",
-                                   value = hostIp == "Empty" ? "Empty" : $"[{hostIp}](steam://connect/{hostIp})",
+                                   name = "Reason",
+                                   value = msg,
                                    inline = true
                                },
                                new
                                {
-                                   name = "\u200B",
-                                   value = "\u200B",
+                                   name = "IP",
+                                   value = hostIp,
                                    inline = true
                                },
                                new
