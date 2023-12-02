@@ -21,7 +21,7 @@ namespace CallAdmin
         return;
       }
 
-      int playerIndex = (int)player.EntityIndex!.Value.Value;
+      int playerIndex = (int)player.Index;
 
       if (commandCooldown != null && DateTime.UtcNow >= commandCooldown[playerIndex].AddSeconds(Config.CooldownRefreshCommandSeconds))
       {
@@ -34,7 +34,7 @@ namespace CallAdmin
         {
           if (playerOnServer.IsBot || playerOnServer == player) continue;
 
-          reportMenu.AddMenuOption($"{playerOnServer.PlayerName} [{playerOnServer.EntityIndex!.Value.Value}]", HandleMenu);
+          reportMenu.AddMenuOption($"{playerOnServer.PlayerName} [{playerOnServer.Index}]", HandleMenu);
         }
 
         if (reportMenu.MenuOptions.Count == 0)
@@ -128,7 +128,7 @@ namespace CallAdmin
         return;
       }
 
-      int playerIndex = (int)player.EntityIndex!.Value.Value;
+      int playerIndex = (int)player.Index;
 
       if (commandCooldown != null && DateTime.UtcNow >= commandCooldown[playerIndex].AddSeconds(Config.CooldownRefreshCommandSeconds))
       {
