@@ -1,27 +1,22 @@
-﻿using System.Text;
-using System.Text.Json;
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
+using CounterStrikeSharp.API.Modules.Commands;
 
 namespace CallAdmin;
 
-public interface IReportedPlayers
-{
-  string SteamId { get; set; }
-  string Groups { get; set; }
-  string Timestamp { get; set; }
-  string EndDate { get; set; }
-
-}
-
-public class ReportedPlayersClass : IReportedPlayers
+public class ReportedPlayersClass
 {
   public required string SteamId { get; set; }
   public required string Groups { get; set; }
   public required string Timestamp { get; set; }
   public required string EndDate { get; set; }
-  // Outras propriedades e métodos...
+}
+public class CustomMessagePlayersClass
+{
+  public required int Player { get; set; }
+  public int? Target { get; set; }
+  public required bool HandleMessage { get; set; }
 }
 [MinimumApiVersion(77)]
 public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
@@ -30,14 +25,16 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
   public override string ModuleName => "CallAdmin";
   public override string ModuleDescription => "Report System with database support";
   public override string ModuleAuthor => "1MaaaaaacK";
-  public override string ModuleVersion => "1.4";
-  public static int ConfigVersion => 3;
+  public override string ModuleVersion => "1.5";
+  public static int ConfigVersion => 4;
 
   private string DatabaseConnectionString = string.Empty;
 
   private DateTime[] commandCooldown = new DateTime[Server.MaxPlayers];
+  private List<ReportedPlayersClass> ReportedPlayers = new();
 
-  private List<IReportedPlayers> ReportedPlayers = new();
+
+  private List<CustomMessagePlayersClass> CustomMessagePlayers = new();
 
   public override void Load(bool hotReload)
   {
@@ -45,39 +42,33 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
     AddCommand($"css_{Config.Commands.ReportPrefix}", "Report a player", ReportCommand);
     AddCommand($"css_{Config.Commands.ReportHandledPrefix}", "Handle Report", ReportHandledCommand);
 
-    BuildDatabaseConnectionString();
-    TestDatabaseConnection();
+    AddCommandListener("say", OnPlayerChat);
+    AddCommandListener("say_team", OnPlayerChat);
+    if (Config.Commands.ReportHandledEnabled)
+    {
+      BuildDatabaseConnectionString();
+      TestDatabaseConnection();
+    }
 
   }
-  public async Task<string> SendMessageToDiscord(dynamic json, string? messageId = null)
+
+
+  private HookResult OnPlayerChat(CCSPlayerController? player, CommandInfo info)
   {
+    if (player == null || !player.IsValid || player.IsBot) return HookResult.Continue;
+    var findPlayer = CustomMessagePlayers.Find(obj => obj.Player == (int)player.Index);
 
-    try
-    {
-      var httpClient = new HttpClient();
-      var content = new StringContent(json, Encoding.UTF8, "application/json");
+    if (findPlayer == null || !findPlayer.HandleMessage || findPlayer.Target == null ||
+    info.GetArg(1).StartsWith("!") || info.GetArg(1).StartsWith("/") || info.GetArg(1) == "rtv") return HookResult.Continue;
 
-      var result = string.IsNullOrEmpty(messageId) ? httpClient.PostAsync($"{Config.WebHookUrl}?wait=true", content).Result : httpClient.PatchAsync($"{Config.WebHookUrl}/messages/{messageId}", content).Result;
+    var findTarget = Utilities.GetPlayerFromIndex((int)findPlayer.Target);
 
-      if (!result.IsSuccessStatusCode)
-      {
-        Console.WriteLine(result);
-        return "There was an error sending the webhook";
-      }
+    _ = HandleSentToDiscordAsync(player, findTarget, info.ArgString.Replace("\"", ""));
 
-      var toJson = JsonSerializer.Deserialize<IWebHookSuccess>(await result.Content.ReadAsStringAsync());
-      return string.IsNullOrEmpty(toJson?.id) ? "Unable to get message ID" : toJson.id;
+    findPlayer.Target = null;
+    findPlayer.HandleMessage = false;
 
-    }
-    catch (Exception e)
-    {
-      Console.WriteLine(e);
-      throw;
-    }
-  }
-  public class IWebHookSuccess
-  {
-    public required string id { get; set; }
+    return HookResult.Handled;
   }
 
 

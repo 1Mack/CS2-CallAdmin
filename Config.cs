@@ -13,7 +13,7 @@ namespace CallAdmin
     {
       if (config.Version != ConfigVersion) throw new Exception($"You have a wrong config version. Delete it and restart the server to get the right version ({ConfigVersion})!");
 
-      if (string.IsNullOrEmpty(config.Database.Host) || string.IsNullOrEmpty(config.Database.Name) || string.IsNullOrEmpty(config.Database.User))
+      if (config.Commands.ReportHandledEnabled && (string.IsNullOrEmpty(config.Database.Host) || string.IsNullOrEmpty(config.Database.Name) || string.IsNullOrEmpty(config.Database.User)))
       {
         throw new Exception($"You need to setup Database credentials in config!");
       }
@@ -43,7 +43,7 @@ namespace CallAdmin
       Config = config;
 
     }
-    private string ChatTags(CallAdminConfig config, string input)
+    private static string ChatTags(CallAdminConfig config, string input)
     {
       Dictionary<string, dynamic> tags = new()
         {
@@ -81,18 +81,18 @@ namespace CallAdmin
   }
   public class CallAdminConfig : BasePluginConfig
   {
-    public override int Version { get; set; } = 3;
+    public override int Version { get; set; } = 4;
 
     [JsonPropertyName("Prefix")]
     public string Prefix { get; set; } = "{DEFAULT}[{GREEN}CallAdmin{DEFAULT}]";
     [JsonPropertyName("ServerIpWithPort")]
-    public string ServerIpWithPort { get; set; } = "111.222.333.444:56789";
+    public string ServerIpWithPort { get; set; } = "";
     [JsonPropertyName("CooldownRefreshCommandSeconds")]
     public int CooldownRefreshCommandSeconds { get; set; } = 60;
     [JsonPropertyName("Reasons")]
-    public string Reasons { get; set; } = "Hack;Toxic;Camping";
+    public string Reasons { get; set; } = "Hack;Toxic;Camping;Your Custom Reason{CUSTOMREASON}";
     [JsonPropertyName("WebHookUrl")]
-    public string WebHookUrl { get; set; } = "https://discord.com/api/webhooks/id/token";
+    public string WebHookUrl { get; set; } = "";
     [JsonPropertyName("Database")]
     public Database Database { get; set; } = new();
     [JsonPropertyName("Commands")]
@@ -101,6 +101,8 @@ namespace CallAdmin
     public ChatMessages ChatMessages { get; set; } = new();
     [JsonPropertyName("EmbedMessages")]
     public EmbedMessages EmbedMessages { get; set; } = new();
+    [JsonPropertyName("ChatMenuMessages")]
+    public ChatMenuMessages ChatMenuMessages { get; set; } = new();
   }
   public class Database
   {
@@ -124,21 +126,14 @@ namespace CallAdmin
 
     [JsonPropertyName("ReportPermission")]
     public string ReportPermission { get; set; } = "";
+    [JsonPropertyName("ReportHandledEnabled")]
+    public bool ReportHandledEnabled { get; set; } = true;
 
     [JsonPropertyName("ReportHandledPrefix")]
     public string ReportHandledPrefix { get; set; } = "report_handled";
 
     [JsonPropertyName("ReportHandledPermission")]
     public string ReportHandledPermission { get; set; } = "@css/generic;@css/ban";
-
-  }
-  public class CommandsPrefix
-  {
-    [JsonPropertyName("Report")]
-    public string Report { get; set; } = "report";
-
-    [JsonPropertyName("ReportHandled")]
-    public string ReportHandled { get; set; } = "report_handled";
 
   }
   public class ChatMessages
@@ -169,6 +164,8 @@ namespace CallAdmin
 
     [JsonPropertyName("ReportMarkedAsHandled")]
     public string ReportMarkedAsHandled { get; set; } = "{DEFAULT}This report has been marked as handled!";
+    [JsonPropertyName("CustomReason")]
+    public string CustomReason { get; set; } = "{DEFAULT}Type the reason for the report";
   }
   public class EmbedMessages
   {
@@ -203,5 +200,12 @@ namespace CallAdmin
     public string Map { get; set; } = "Map";
     [JsonPropertyName("Content")]
     public string Content { get; set; } = "You can write anything here or leave it blank. Ping a member like this: <@MemberId> or a role: <@&RoleID>";
+  }
+  public class ChatMenuMessages
+  {
+    [JsonPropertyName("ReasonsTitle")]
+    public string ReasonsTitle { get; set; } = "[REPORT] Choose a Reason";
+    [JsonPropertyName("PlayersTitle")]
+    public string PlayersTitle { get; set; } = "[REPORT] Choose a Player";
   }
 }

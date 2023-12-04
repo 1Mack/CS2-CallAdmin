@@ -13,7 +13,8 @@ public partial class CallAdmin
       Password = Config.Database.Password,
       Database = Config.Database.Name,
       Port = (uint)Config.Database.Port,
-      ConvertZeroDateTime = true
+      ConvertZeroDateTime = true,
+      SslMode = MySqlSslMode.Preferred
     };
 
     DatabaseConnectionString = builder.ConnectionString;
