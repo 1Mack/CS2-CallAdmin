@@ -73,9 +73,9 @@ namespace CallAdmin
 
       if (lastPart.Contains("-c"))
       {
-
         var findPlayer = CustomMessagePlayers.Find(obj => obj.Player == (int)player.Index);
         if (findPlayer == null)
+        {
           CustomMessagePlayers.Add(new CustomMessagePlayersClass
           {
             HandleMessage = true,
@@ -83,6 +83,7 @@ namespace CallAdmin
             Target = int.Parse(lastPart.Replace("-c", "").Trim())
 
           });
+        }
         else
         {
           findPlayer.HandleMessage = true;

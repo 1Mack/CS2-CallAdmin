@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "0o34TTcJ6EGleYdzq6y0yG6YihhUdtGiL49Abr6jSpuH32Tg5FhWiZRHE2L7fCiiE5u6XLa7WEQU338pfOYoCw==",
+  "dgSpecHash": "RKh+u25sGjcS42Sr0z3juGibY+K3g9HYqjrxexxs4Lvyx312dv+VoZnbgYPtr7CywRkShAPT5Ykn1niebk4T/Q==",
   "success": true,
-  "projectFilePath": "C:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\CallAdmin\\CallAdmin.csproj",
+  "projectFilePath": "C:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\marcos\\.nuget\\packages\\counterstrikesharp.api\\1.0.90\\counterstrikesharp.api.1.0.90.nupkg.sha512",
     "C:\\Users\\marcos\\.nuget\\packages\\dapper\\2.1.24\\dapper.2.1.24.nupkg.sha512",
