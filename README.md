@@ -5,18 +5,19 @@ All reports are stored in the database
 
 ## Installation
 1. Install **[CounterStrike Sharp](https://github.com/roflmuffin/CounterStrikeSharp/releases)** and **[Metamod:Source](https://www.sourcemm.net/downloads.php/?branch=master)**;
-3. Download **[CS2-VipManager](https://github.com/1Mack/CS2-CallAdmin/releases/tag/V1.1)**;
+3. Download **[CallAdmin](https://github.com/1Mack/CS2-CallAdmin/releases)**;
 4. Unzip the archive and upload it into **`csgo/addons/counterstrikesharp/plugins`**;
 
 ## Config
 The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/configs/plugins/CallAdmin`)***
 ```
 {
-  "Version": 2,
+  "Version": 5,
   "Prefix": "{DEFAULT}[{GREEN}CallAdmin{DEFAULT}]",
-  "ServerIpWithPort": "111.222.333.444:56789",
+  "ServerIpWithPort": "",
   "CooldownRefreshCommandSeconds": 60,
-  "Reasons": "Hack;Toxic",
+  "Reasons": "Hack;Toxic;Camping;Your Custom Reason{CUSTOMREASON}",
+  "Debug": false,
   "WebHookUrl": "",
   "Database": {
     "Host": "",
@@ -29,6 +30,7 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
   "Commands": {
     "ReportPrefix": "report",
     "ReportPermission": "",
+    "ReportHandledEnabled": true,
     "ReportHandledPrefix": "report_handled",
     "ReportHandledPermission": "@css/generic;@css/ban"
   },
@@ -41,7 +43,8 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
     "InsertIntoDatabaseError": "{DEFAULT}There was an error while inserting into database!",
     "ReportNotFound": "{DEFAULT}I couldn\u0027t find this report",
     "MarkedAsHandledButNotInDatabase": "{DEFAULT}This report has been marked as handled on Discord but not in database!",
-    "ReportMarkedAsHandled": "{DEFAULT}This report has been marked as handled!"
+    "ReportMarkedAsHandled": "{DEFAULT}This report has been marked as handled!",
+    "CustomReason": "{DEFAULT}Type the reason for the report"
   },
   "EmbedMessages": {
     "Title": "Report",
@@ -58,9 +61,14 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
     "AdminSteamid": "SteamID",
     "Reason": "Reason",
     "Ip": "Ip",
-    "Map": "Map"
+    "Map": "Map",
+    "Content": "You can write anything here or leave it blank. Ping a member like this: \u003C@MemberId\u003E or a role: \u003C@\u0026RoleID\u003E"
   },
-  "ConfigVersion": 2
+  "ChatMenuMessages": {
+    "ReasonsTitle": "[REPORT] Choose a Reason",
+    "PlayersTitle": "[REPORT] Choose a Player"
+  },
+  "ConfigVersion": 5
 }
 ```
 ## Commands

@@ -25,8 +25,8 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
   public override string ModuleName => "CallAdmin";
   public override string ModuleDescription => "Report System with database support";
   public override string ModuleAuthor => "1MaaaaaacK";
-  public override string ModuleVersion => "1.5";
-  public static int ConfigVersion => 4;
+  public override string ModuleVersion => "1.6";
+  public static int ConfigVersion => 5;
 
   private string DatabaseConnectionString = string.Empty;
 

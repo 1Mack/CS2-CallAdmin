@@ -81,7 +81,7 @@ namespace CallAdmin
   }
   public class CallAdminConfig : BasePluginConfig
   {
-    public override int Version { get; set; } = 4;
+    public override int Version { get; set; } = 5;
 
     [JsonPropertyName("Prefix")]
     public string Prefix { get; set; } = "{DEFAULT}[{GREEN}CallAdmin{DEFAULT}]";
@@ -92,6 +92,8 @@ namespace CallAdmin
     [JsonPropertyName("Reasons")]
     public string Reasons { get; set; } = "Hack;Toxic;Camping;Your Custom Reason{CUSTOMREASON}";
     [JsonPropertyName("WebHookUrl")]
+    public bool Debug { get; set; } = false;
+    [JsonPropertyName("Debug")]
     public string WebHookUrl { get; set; } = "";
     [JsonPropertyName("Database")]
     public Database Database { get; set; } = new();

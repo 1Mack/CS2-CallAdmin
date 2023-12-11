@@ -30,7 +30,7 @@ namespace CallAdmin
 
         foreach (var playerOnServer in Utilities.GetPlayers())
         {
-          if (playerOnServer.IsBot || playerOnServer.Index == player.Index) continue;
+          if (playerOnServer.IsBot || (!Config.Debug && playerOnServer.Index == player.Index)) continue;
 
           reportMenu.AddMenuOption($"{playerOnServer.PlayerName} [{playerOnServer.Index}]", HandleMenu);
         }
