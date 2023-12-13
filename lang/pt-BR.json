@@ -11,8 +11,6 @@
   "ReportMarkedAsHandled": "Esse reporte foi marcado como {green}resolvido!",
   "CustomReason": "Escrever o motivo do reporte",
   "Embed.Title": "Reporte",
-  "Embed.ColorReport": 16711680,
-  "Embed.ColorReportHandled": 65280,
   "Embed.Player": "Jogador",
   "Embed.PlayerName": "Nome",
   "Embed.PlayerSteamid": "SteamID",

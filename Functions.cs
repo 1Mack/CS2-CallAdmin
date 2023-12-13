@@ -99,20 +99,20 @@ namespace CallAdmin
                        new
                        {
                            title = $"{Localizer["Embed.Title"]} - {identifier}",
-                           color = Localizer["Embed.ColorReport"],
+                           color = Config.Embed.ColorReport,
                            footer= new {text=hostName},
                            fields = new object[]
                            {
                                new
                                {
-                                   name = Localizer["Embed.Player"],
+                                   name = Localizer["Embed.Player"].Value,
                                    value =
                                        $"**{Localizer["Embed.PlayerName"]}:** {clientName}\n**{Localizer["Embed.PlayerSteamid"]}:** [{new SteamID(ulong.Parse(clientSteamId)).SteamId2}](https://steamcommunity.com/profiles/{clientSteamId}/)",
                                    inline = true
                                },
                                new
                                {
-                                   name = Localizer["Embed.Suspect"],
+                                   name = Localizer["Embed.Suspect"].Value,
                                    value =
                                        $"**{Localizer["Embed.SuspectName"]}:** {targetName}\n**{Localizer["Embed.SuspectSteamid"]}:** [{new SteamID(ulong.Parse(targetSteamId)).SteamId2}](https://steamcommunity.com/profiles/{targetSteamId}/)",
                                    inline = true
@@ -125,19 +125,19 @@ namespace CallAdmin
                                },
                                new
                                {
-                                   name = Localizer["Embed.Reason"],
+                                   name = Localizer["Embed.Reason"].Value,
                                    value = msg,
                                    inline = true
                                },
                                new
                                {
-                                   name = Localizer["Embed.Ip"],
+                                   name = Localizer["Embed.Ip"].Value,
                                    value = hostIp,
                                    inline = true
                                },
                                new
                                {
-                                   name = Localizer["Embed.Map"],
+                                   name = Localizer["Embed.Map"].Value,
                                    value = Server.MapName,
                                    inline = true
                                }
@@ -146,14 +146,13 @@ namespace CallAdmin
                    }
       };
 
-
       if (!string.IsNullOrEmpty(adminName) && !string.IsNullOrEmpty(adminSteamId))
       {
 
         var newField =
            new
            {
-             name = Localizer["Embed.Admin"],
+             name = Localizer["Embed.Admin"].Value,
              value =
                     $"**{Localizer["Embed.AdminName"]}:** {adminName}\n**{Localizer["Embed.AdminSteamid"]}:** [{new SteamID(ulong.Parse(adminSteamId)).SteamId2}](https://steamcommunity.com/profiles/{adminSteamId}/)",
              inline = true
@@ -163,7 +162,7 @@ namespace CallAdmin
         var modifiedEmbed = new
         {
           embed.title,
-          color = Localizer["Embed.ColorReportHandled"],
+          color = Config.Embed.ColorReportHandled,
           embed.footer,
           fields = new[]
           {

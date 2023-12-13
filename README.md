@@ -1,7 +1,7 @@
 # CS2 CallAdmin
 Plugin for CS2 that reports a player on game and send a webhook message to discord.
-Admins can handle the report by marking it as handled. 
-All reports are stored in the database
+Admins can handle the report by marking it as handled. `(optional)`
+All reports are stored in the database. `(optional)`
 
 ## Installation
 1. Install **[CounterStrike Sharp](https://github.com/roflmuffin/CounterStrikeSharp/releases)** and **[Metamod:Source](https://www.sourcemm.net/downloads.php/?branch=master)**;
@@ -12,13 +12,12 @@ All reports are stored in the database
 The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/configs/plugins/CallAdmin`)***
 ```
 {
-  "Version": 5,
-  "Prefix": "{DEFAULT}[{GREEN}CallAdmin{DEFAULT}]",
+  "Version": 7,
   "ServerIpWithPort": "",
-  "CooldownRefreshCommandSeconds": 60,
+  "CooldownRefreshCommandSeconds": 30,
   "Reasons": "Hack;Toxic;Camping;Your Custom Reason{CUSTOMREASON}",
-  "Debug": false,
   "WebHookUrl": "",
+  "Debug": true,
   "Database": {
     "Host": "",
     "Port": 3306,
@@ -34,43 +33,47 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
     "ReportHandledPrefix": "report_handled",
     "ReportHandledPermission": "@css/generic;@css/ban"
   },
-  "ChatMessages": {
-    "MissingCommandPermission": "{DEFAULT}You don\u0027t have permission to use this command!",
-    "NoPlayersAvailable": "{DEFAULT}There are no players available",
-    "InCoolDown": "You are on a cooldown...wait {COOLDOWNSECONDS} seconds and try again",
-    "ReportSent": "{DEFAULT}Your report has been sent to the admins!",
-    "WebhookError": "{DEFAULT}There was an error sending the webhook",
-    "InsertIntoDatabaseError": "{DEFAULT}There was an error while inserting into database!",
-    "ReportNotFound": "{DEFAULT}I couldn\u0027t find this report",
-    "MarkedAsHandledButNotInDatabase": "{DEFAULT}This report has been marked as handled on Discord but not in database!",
-    "ReportMarkedAsHandled": "{DEFAULT}This report has been marked as handled!",
-    "CustomReason": "{DEFAULT}Type the reason for the report"
-  },
-  "EmbedMessages": {
-    "Title": "Report",
+  "Embed": {
     "ColorReport": 16711680,
-    "ColorReportHandled": 65280,
-    "Player": "Player",
-    "PlayerName": "Name",
-    "PlayerSteamid": "SteamID",
-    "Suspect": "Suspect",
-    "SuspectName": "Name",
-    "SuspectSteamid": "SteamID",
-    "Admin": "Admin",
-    "AdminName": "Name",
-    "AdminSteamid": "SteamID",
-    "Reason": "Reason",
-    "Ip": "Ip",
-    "Map": "Map",
-    "Content": "You can write anything here or leave it blank. Ping a member like this: \u003C@MemberId\u003E or a role: \u003C@\u0026RoleID\u003E"
+    "ColorReportHandled": 65280
   },
-  "ChatMenuMessages": {
-    "ReasonsTitle": "[REPORT] Choose a Reason",
-    "PlayersTitle": "[REPORT] Choose a Player"
-  },
-  "ConfigVersion": 5
+  "ConfigVersion": 7
 }
 ```
 ## Commands
 - **`report`** - Reports a Player; **(`#css/admin` group is required for use)**
 - **`report_handled [identifier]`** - Mark a report as handled; **(`@css/generic;@css/ban` flag is required for use)**
+
+## Translations
+You can choose a translation on the core.json of counterstrikesharp or type !lang lang ***(Path: `csgo/addons/counterstrikesharp/plugins/CallAdmin/lang`)***
+```
+{
+  "Prefix": "[{green}CallAdmin{default}]",
+  "MissingCommandPermission": "{red}You don't have permission to use this command!",
+  "NoPlayersAvailable": "There are no players available",
+  "InCoolDown": "You are on a cooldown...wait {0} seconds and try again",
+  "ReportSent": "Your report has been sent to the admins!",
+  "WebhookError": "There was an error sending the webhook",
+  "InsertIntoDatabaseError": "There was an error while inserting into database!",
+  "ReportNotFound": "I couldn't find this report",
+  "MarkedAsHandledButNotInDatabase": "This report has been marked as handled on Discord but not in database!",
+  "ReportMarkedAsHandled": "This report has been marked as {green}handled!",
+  "CustomReason": "Type the reason for the report",
+  "Embed.Title": "Report",
+  "Embed.Player": "Player",
+  "Embed.PlayerName": "Name",
+  "Embed.PlayerSteamid": "SteamID",
+  "Embed.Suspect": "Suspect",
+  "Embed.SuspectName": "Name",
+  "Embed.SuspectSteamid": "SteamID",
+  "Embed.Admin": "Admin",
+  "Embed.AdminName": "Name",
+  "Embed.AdminSteamid": "SteamID",
+  "Embed.Reason": "Reason",
+  "Embed.Ip": "Ip",
+  "Embed.Map": "Map",
+  "Embed.Content": "**!{0} {1}** in the game to mark this report as handled. -> You can write anything here or leave it blank. Ping a member like this: <@MemberId> or a role: <@&RoleId>",
+  "ChatMenu.ReasonsTitle": "[{green}REPORT{default}] Choose a Reason",
+  "ChatMenu.PlayersTitle": "[{green}REPORT{default}] Choose a Player"
+}
+```

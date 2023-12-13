@@ -31,7 +31,7 @@ namespace CallAdmin
   }
   public class CallAdminConfig : BasePluginConfig
   {
-    public override int Version { get; set; } = 6;
+    public override int Version { get; set; } = 7;
     [JsonPropertyName("ServerIpWithPort")]
     public string ServerIpWithPort { get; set; } = "";
     [JsonPropertyName("CooldownRefreshCommandSeconds")]
@@ -46,6 +46,8 @@ namespace CallAdmin
     public Database Database { get; set; } = new();
     [JsonPropertyName("Commands")]
     public Commands Commands { get; set; } = new();
+    [JsonPropertyName("Embed")]
+    public Embed Embed { get; set; } = new();
   }
   public class Database
   {
@@ -77,5 +79,14 @@ namespace CallAdmin
 
     [JsonPropertyName("ReportHandledPermission")]
     public string ReportHandledPermission { get; set; } = "@css/generic;@css/ban";
+  }
+  public class Embed
+  {
+    [JsonPropertyName("ColorReport")]
+    public int ColorReport { get; set; } = 16711680;
+
+    [JsonPropertyName("ColorReportHandled")]
+    public int ColorReportHandled { get; set; } = 65280;
+
   }
 }
