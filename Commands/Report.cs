@@ -2,7 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
-using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Menu;
 
 namespace CallAdmin
@@ -15,7 +15,7 @@ namespace CallAdmin
 
       if (!string.IsNullOrEmpty(Config.Commands.ReportPermission) && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportPermission.Split(";")))
       {
-        command.ReplyToCommand($"{Config.Prefix} {Config.ChatMessages.MissingCommandPermission}");
+        command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["MissingCommandPermission"]}");
         return;
       }
 
@@ -26,7 +26,7 @@ namespace CallAdmin
 
         commandCooldown[playerIndex] = DateTime.UtcNow;
 
-        ChatMenu reportMenu = new(Config.ChatMenuMessages.PlayersTitle);
+        ChatMenu reportMenu = new(Localizer["ChatMenu.PlayersTitle"]);
 
         foreach (var playerOnServer in Utilities.GetPlayers())
         {
@@ -37,14 +37,14 @@ namespace CallAdmin
 
         if (reportMenu.MenuOptions.Count == 0)
         {
-          command.ReplyToCommand($"{Config.Prefix} {Config.ChatMessages.NoPlayersAvailable}");
+          command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["NoPlayersAvailable"]}");
           return;
         }
         ChatMenus.OpenMenu(player, reportMenu);
         return;
       }
 
-      command.ReplyToCommand($"{Config.Prefix} {Config.ChatMessages.InCoolDown}");
+      command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["InCoolDown", Config.CooldownRefreshCommandSeconds]}");
 
     }
 
@@ -56,7 +56,7 @@ namespace CallAdmin
 
       var index = int.Parse(numbersOnly.Trim());
       var reasons = Config.Reasons.Split(";");
-      var reasonMenu = new ChatMenu(Config.ChatMenuMessages.ReasonsTitle);
+      var reasonMenu = new ChatMenu(Localizer["ChatMenu.ReasonsTitle"]);
       reasonMenu.MenuOptions.Clear();
       foreach (var reason in reasons)
       {
@@ -89,7 +89,7 @@ namespace CallAdmin
           findPlayer.HandleMessage = true;
           findPlayer.Target = int.Parse(lastPart.Replace("-c", "").Trim());
         }
-        player.PrintToChat($"{Config.Prefix} {Config.ChatMessages.CustomReason}");
+        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["CustomReason"]}");
         return;
       }
       else

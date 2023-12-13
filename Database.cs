@@ -28,12 +28,12 @@ public partial class CallAdmin
 
       if (connection.State != System.Data.ConnectionState.Open)
       {
-        throw new Exception($"{Config.Prefix} Unable connect to database!");
+        throw new Exception($"{Localizer["Prefix"]} Unable connect to database!");
       }
     }
     catch (Exception ex)
     {
-      throw new Exception($"{Config.Prefix} Unknown mysql exception! " + ex.Message);
+      throw new Exception($"{Localizer["Prefix"]} Unknown mysql exception! " + ex.Message);
     }
     CheckDatabaseTables();
   }
@@ -60,12 +60,12 @@ public partial class CallAdmin
       {
         await transaction.RollbackAsync();
         await connection.CloseAsync();
-        throw new Exception($"{Config.Prefix} Unable to create tables!");
+        throw new Exception($"{Localizer["Prefix"]} Unable to create tables!");
       }
     }
     catch (Exception ex)
     {
-      throw new Exception($"{Config.Prefix} Unknown mysql exception! " + ex.Message);
+      throw new Exception($"{Localizer["Prefix"]} Unknown mysql exception! " + ex.Message);
     }
   }
 

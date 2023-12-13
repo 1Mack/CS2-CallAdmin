@@ -16,7 +16,7 @@ namespace CallAdmin
 
       if (!string.IsNullOrEmpty(Config.Commands.ReportHandledPermission) && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportHandledPermission.Split(";").Select(space => space.Trim()).ToArray()))
       {
-        command.ReplyToCommand($"{Config.Prefix} {Config.ChatMessages.MissingCommandPermission}");
+        command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["MissingCommandPermission"]}");
         return;
       }
 
@@ -39,15 +39,15 @@ namespace CallAdmin
           {
             if (query == null)
             {
-              command.ReplyToCommand($"{Config.Prefix} {Config.ChatMessages.ReportNotFound}");
+              command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["ReportNotFound"]}");
               return;
             }
             string result = await SendMessageToDiscord(Payload(query.victim_name, query.victim_steamid, query.suspect_name,
-                query.suspect_steamid, query.host_name, query.host_ip, query.reason, identifier, Config.EmbedMessages.Content, playerName, playerSteamid), query.message_id);
+                query.suspect_steamid, query.host_name, query.host_ip, query.reason, identifier, playerName, playerSteamid), query.message_id);
 
             if (!result.All(char.IsDigit))
             {
-              player.PrintToChat($"{Config.Prefix} {Config.ChatMessages.WebhookError}");
+              player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
               Console.WriteLine(result);
               return;
             }
@@ -55,9 +55,9 @@ namespace CallAdmin
             bool executeResult = await UpdateReportDatabase(identifier, playerName, playerSteamid);
 
             if (!executeResult)
-              player.PrintToChat($"{Config.Prefix} {Config.ChatMessages.MarkedAsHandledButNotInDatabase}");
+              player.PrintToChat($"{Localizer["Prefix"]} {Localizer["MarkedAsHandledButNotInDatabase"]}");
 
-            player.PrintToChat($"{Config.Prefix} {Config.ChatMessages.ReportMarkedAsHandled}");
+            player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportMarkedAsHandled"]}");
           });
 
         });
@@ -65,7 +65,7 @@ namespace CallAdmin
       }
       else
 
-        command.ReplyToCommand($"{Config.Prefix} {Config.ChatMessages.InCoolDown}");
+        command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["InCoolDown", Config.CooldownRefreshCommandSeconds]}");
 
     }
   }

@@ -8,7 +8,7 @@
     ".NETCoreApp,Version=v7.0": {
       "CallAdmin/1.0.0": {
         "dependencies": {
-          "CounterStrikeSharp.API": "1.0.90",
+          "CounterStrikeSharp.API": "1.0.124",
           "Dapper": "2.1.24",
           "MySqlConnector": "2.3.1"
         },
@@ -16,12 +16,13 @@
           "CallAdmin.dll": {}
         }
       },
-      "CounterStrikeSharp.API/1.0.90": {
+      "CounterStrikeSharp.API/1.0.124": {
         "dependencies": {
           "McMaster.NETCore.Plugins": "1.4.0",
           "Microsoft.CSharp": "4.7.0",
           "Microsoft.Extensions.Hosting": "7.0.0",
           "Microsoft.Extensions.Hosting.Abstractions": "7.0.0",
+          "Microsoft.Extensions.Localization.Abstractions": "7.0.3",
           "Microsoft.Extensions.Logging": "7.0.0",
           "Scrutor": "4.2.2",
           "Serilog.Extensions.Logging": "7.0.0",
@@ -31,8 +32,8 @@
         },
         "runtime": {
           "lib/net7.0/CounterStrikeSharp.API.dll": {
-            "assemblyVersion": "1.0.90.0",
-            "fileVersion": "1.0.90.0"
+            "assemblyVersion": "1.0.124.0",
+            "fileVersion": "1.0.124.0"
           }
         }
       },
@@ -277,6 +278,14 @@
           }
         }
       },
+      "Microsoft.Extensions.Localization.Abstractions/7.0.3": {
+        "runtime": {
+          "lib/net7.0/Microsoft.Extensions.Localization.Abstractions.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.323.8009"
+          }
+        }
+      },
       "Microsoft.Extensions.Logging/7.0.0": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection": "7.0.0",
@@ -517,12 +526,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "CounterStrikeSharp.API/1.0.90": {
+    "CounterStrikeSharp.API/1.0.124": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-4nMpeQixBjzDUk1c1NvhD8+9hYFVelkZ/WtLLLQl8p+iO02NWr5KtAwsU21sFLiKI6AHWlZH5Ut9tQUyIYMKlg==",
-      "path": "counterstrikesharp.api/1.0.90",
-      "hashPath": "counterstrikesharp.api.1.0.90.nupkg.sha512"
+      "sha512": "sha512-VVJiqDTx1eNbDkiTN/qA+gOhVWWGSPXxEQHYRci23/h8OrsNoevK6C33IgtqK9gngvN52yHPzrKSf4WKHPOsZw==",
+      "path": "counterstrikesharp.api/1.0.124",
+      "hashPath": "counterstrikesharp.api.1.0.124.nupkg.sha512"
     },
     "Dapper/2.1.24": {
       "type": "package",
@@ -663,6 +672,13 @@
       "sha512": "sha512-43n9Je09z0p/7ViPxfRqs5BUItRLNVh5b6JH40F2Agkh2NBsY/jpNYTtbCcxrHCsA3oRmbR6RJBzUutB4VZvNQ==",
       "path": "microsoft.extensions.hosting.abstractions/7.0.0",
       "hashPath": "microsoft.extensions.hosting.abstractions.7.0.0.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Localization.Abstractions/7.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2sEhpRPiWY3iJ+nxHnLUqM8qNoGqQQqduk0QXd3iEt0fc4fw8EwFElqtT4OJMV0qnGGAwYykdOtrzZ1BIqdvpQ==",
+      "path": "microsoft.extensions.localization.abstractions/7.0.3",
+      "hashPath": "microsoft.extensions.localization.abstractions.7.0.3.nupkg.sha512"
     },
     "Microsoft.Extensions.Logging/7.0.0": {
       "type": "package",

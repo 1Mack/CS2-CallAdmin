@@ -40,15 +40,15 @@
           "dependencies": {
             "CounterStrikeSharp.API": {
               "target": "Package",
-              "version": "[1.0.90, )"
+              "version": "[1.0.124, )"
             },
             "Dapper": {
               "target": "Package",
-              "version": "[2.1.24, )"
+              "version": "[*, )"
             },
             "MySqlConnector": {
               "target": "Package",
-              "version": "[2.3.1, )"
+              "version": "[*, )"
             }
           },
           "imports": [

@@ -18,7 +18,7 @@ public class CustomMessagePlayersClass
   public int? Target { get; set; }
   public required bool HandleMessage { get; set; }
 }
-[MinimumApiVersion(77)]
+[MinimumApiVersion(124)]
 public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
 {
 
@@ -26,7 +26,7 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
   public override string ModuleDescription => "Report System with database support";
   public override string ModuleAuthor => "1MaaaaaacK";
   public override string ModuleVersion => "1.6";
-  public static int ConfigVersion => 5;
+  public static int ConfigVersion => 6;
 
   private string DatabaseConnectionString = string.Empty;
 

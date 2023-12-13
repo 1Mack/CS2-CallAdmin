@@ -61,15 +61,15 @@ namespace CallAdmin
       string identifier = RandomString(15);
 
       string result = await SendMessageToDiscord(Payload(player.PlayerName, player.SteamID.ToString(), target.PlayerName,
-           target.SteamID.ToString(), hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier, Config.EmbedMessages.Content));
+           target.SteamID.ToString(), hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier));
 
       if (!result.All(char.IsDigit))
       {
-        player.PrintToChat($"{Config.Prefix} {Config.ChatMessages.WebhookError}");
+        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
 
         return;
       }
-      player.PrintToChat($"{Config.Prefix} {Config.ChatMessages.ReportSent}");
+      player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportSent"]}");
 
       if (!Config.Commands.ReportHandledEnabled) return;
 
@@ -78,13 +78,19 @@ namespace CallAdmin
 
       if (!resultQuery)
       {
-        Console.WriteLine($"{Config.Prefix} {Config.ChatMessages.InsertIntoDatabaseError}");
+        Console.WriteLine($"{Localizer["Prefix"]} {Localizer["InsertIntoDatabaseError"]}");
         return;
       }
     }
-    public string Payload(string clientName, string clientSteamId, string targetName, string targetSteamId, string hostName, string hostIp, string msg, string identifier, string content = "", string? adminName = null, string? adminSteamId = null)
+    public string Payload(string clientName, string clientSteamId, string targetName, string targetSteamId, string hostName, string hostIp, string msg, string identifier, string? adminName = null, string? adminSteamId = null)
     {
-      Console.WriteLine(msg);
+      string content = Localizer["Embed.Content", Config.Commands.ReportHandledPrefix, identifier];
+
+      if (string.IsNullOrEmpty(content))
+      {
+        content = "\u200B";
+      }
+
       var Payload = new
       {
         content,
@@ -92,23 +98,23 @@ namespace CallAdmin
                       {
                        new
                        {
-                           title = $"{Config.EmbedMessages.Title} - {identifier}",
-                           color = Config.EmbedMessages.ColorReport,
+                           title = $"{Localizer["Embed.Title"]} - {identifier}",
+                           color = Localizer["Embed.ColorReport"],
                            footer= new {text=hostName},
-                           fields = new[]
+                           fields = new object[]
                            {
                                new
                                {
-                                   name = Config.EmbedMessages.Player,
+                                   name = Localizer["Embed.Player"],
                                    value =
-                                       $"**{Config.EmbedMessages.PlayerName}:** {clientName}\n**{Config.EmbedMessages.PlayerSteamid}:** [{new SteamID(ulong.Parse(clientSteamId)).SteamId2}](https://steamcommunity.com/profiles/{clientSteamId}/)",
+                                       $"**{Localizer["Embed.PlayerName"]}:** {clientName}\n**{Localizer["Embed.PlayerSteamid"]}:** [{new SteamID(ulong.Parse(clientSteamId)).SteamId2}](https://steamcommunity.com/profiles/{clientSteamId}/)",
                                    inline = true
                                },
                                new
                                {
-                                   name = Config.EmbedMessages.Suspect,
+                                   name = Localizer["Embed.Suspect"],
                                    value =
-                                       $"**{Config.EmbedMessages.SuspectName}:** {targetName}\n**{Config.EmbedMessages.SuspectSteamid}:** [{new SteamID(ulong.Parse(targetSteamId)).SteamId2}](https://steamcommunity.com/profiles/{targetSteamId}/)",
+                                       $"**{Localizer["Embed.SuspectName"]}:** {targetName}\n**{Localizer["Embed.SuspectSteamid"]}:** [{new SteamID(ulong.Parse(targetSteamId)).SteamId2}](https://steamcommunity.com/profiles/{targetSteamId}/)",
                                    inline = true
                                },
                                new
@@ -119,19 +125,19 @@ namespace CallAdmin
                                },
                                new
                                {
-                                   name = Config.EmbedMessages.Reason,
+                                   name = Localizer["Embed.Reason"],
                                    value = msg,
                                    inline = true
                                },
                                new
                                {
-                                   name = Config.EmbedMessages.Ip,
+                                   name = Localizer["Embed.Ip"],
                                    value = hostIp,
                                    inline = true
                                },
                                new
                                {
-                                   name = Config.EmbedMessages.Map,
+                                   name = Localizer["Embed.Map"],
                                    value = Server.MapName,
                                    inline = true
                                }
@@ -140,15 +146,16 @@ namespace CallAdmin
                    }
       };
 
+
       if (!string.IsNullOrEmpty(adminName) && !string.IsNullOrEmpty(adminSteamId))
       {
 
         var newField =
            new
            {
-             name = Config.EmbedMessages.Admin,
+             name = Localizer["Embed.Admin"],
              value =
-                    $"**{Config.EmbedMessages.AdminName}:** {adminName}\n**{Config.EmbedMessages.AdminSteamid}:** [{new SteamID(ulong.Parse(adminSteamId)).SteamId2}](https://steamcommunity.com/profiles/{adminSteamId}/)",
+                    $"**{Localizer["Embed.AdminName"]}:** {adminName}\n**{Localizer["Embed.AdminSteamid"]}:** [{new SteamID(ulong.Parse(adminSteamId)).SteamId2}](https://steamcommunity.com/profiles/{adminSteamId}/)",
              inline = true
            };
         var embed = Payload.embeds[0];
@@ -156,7 +163,7 @@ namespace CallAdmin
         var modifiedEmbed = new
         {
           embed.title,
-          color = Config.EmbedMessages.ColorReportHandled,
+          color = Localizer["Embed.ColorReportHandled"],
           embed.footer,
           fields = new[]
           {

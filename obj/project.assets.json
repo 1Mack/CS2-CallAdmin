@@ -2,13 +2,14 @@
   "version": 3,
   "targets": {
     "net7.0": {
-      "CounterStrikeSharp.API/1.0.90": {
+      "CounterStrikeSharp.API/1.0.124": {
         "type": "package",
         "dependencies": {
           "McMaster.NETCore.Plugins": "1.4.0",
           "Microsoft.CSharp": "4.7.0",
           "Microsoft.Extensions.Hosting": "7.0.0",
           "Microsoft.Extensions.Hosting.Abstractions": "7.0.0",
+          "Microsoft.Extensions.Localization.Abstractions": "7.0.3",
           "Microsoft.Extensions.Logging": "7.0.0",
           "Scrutor": "4.2.2",
           "Serilog.Extensions.Logging": "7.0.0",
@@ -415,6 +416,19 @@
         },
         "build": {
           "buildTransitive/net6.0/_._": {}
+        }
+      },
+      "Microsoft.Extensions.Localization.Abstractions/7.0.3": {
+        "type": "package",
+        "compile": {
+          "lib/net7.0/Microsoft.Extensions.Localization.Abstractions.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net7.0/Microsoft.Extensions.Localization.Abstractions.dll": {
+            "related": ".xml"
+          }
         }
       },
       "Microsoft.Extensions.Logging/7.0.0": {
@@ -840,14 +854,14 @@
     }
   },
   "libraries": {
-    "CounterStrikeSharp.API/1.0.90": {
-      "sha512": "4nMpeQixBjzDUk1c1NvhD8+9hYFVelkZ/WtLLLQl8p+iO02NWr5KtAwsU21sFLiKI6AHWlZH5Ut9tQUyIYMKlg==",
+    "CounterStrikeSharp.API/1.0.124": {
+      "sha512": "VVJiqDTx1eNbDkiTN/qA+gOhVWWGSPXxEQHYRci23/h8OrsNoevK6C33IgtqK9gngvN52yHPzrKSf4WKHPOsZw==",
       "type": "package",
-      "path": "counterstrikesharp.api/1.0.90",
+      "path": "counterstrikesharp.api/1.0.124",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "counterstrikesharp.api.1.0.90.nupkg.sha512",
+        "counterstrikesharp.api.1.0.124.nupkg.sha512",
         "counterstrikesharp.api.nuspec",
         "lib/net7.0/CounterStrikeSharp.API.dll",
         "lib/net7.0/CounterStrikeSharp.API.runtimeconfig.json",
@@ -1415,6 +1429,25 @@
         "microsoft.extensions.hosting.abstractions.7.0.0.nupkg.sha512",
         "microsoft.extensions.hosting.abstractions.nuspec",
         "useSharedDesignerContext.txt"
+      ]
+    },
+    "Microsoft.Extensions.Localization.Abstractions/7.0.3": {
+      "sha512": "2sEhpRPiWY3iJ+nxHnLUqM8qNoGqQQqduk0QXd3iEt0fc4fw8EwFElqtT4OJMV0qnGGAwYykdOtrzZ1BIqdvpQ==",
+      "type": "package",
+      "path": "microsoft.extensions.localization.abstractions/7.0.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/net462/Microsoft.Extensions.Localization.Abstractions.dll",
+        "lib/net462/Microsoft.Extensions.Localization.Abstractions.xml",
+        "lib/net7.0/Microsoft.Extensions.Localization.Abstractions.dll",
+        "lib/net7.0/Microsoft.Extensions.Localization.Abstractions.xml",
+        "lib/netstandard2.0/Microsoft.Extensions.Localization.Abstractions.dll",
+        "lib/netstandard2.0/Microsoft.Extensions.Localization.Abstractions.xml",
+        "microsoft.extensions.localization.abstractions.7.0.3.nupkg.sha512",
+        "microsoft.extensions.localization.abstractions.nuspec"
       ]
     },
     "Microsoft.Extensions.Logging/7.0.0": {
@@ -2126,9 +2159,9 @@
   },
   "projectFileDependencyGroups": {
     "net7.0": [
-      "CounterStrikeSharp.API >= 1.0.90",
-      "Dapper >= 2.1.24",
-      "MySqlConnector >= 2.3.1"
+      "CounterStrikeSharp.API >= 1.0.124",
+      "Dapper >= *",
+      "MySqlConnector >= *"
     ]
   },
   "packageFolders": {
@@ -2170,15 +2203,15 @@
         "dependencies": {
           "CounterStrikeSharp.API": {
             "target": "Package",
-            "version": "[1.0.90, )"
+            "version": "[1.0.124, )"
           },
           "Dapper": {
             "target": "Package",
-            "version": "[2.1.24, )"
+            "version": "[*, )"
           },
           "MySqlConnector": {
             "target": "Package",
-            "version": "[2.3.1, )"
+            "version": "[*, )"
           }
         },
         "imports": [

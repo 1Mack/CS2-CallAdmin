@@ -25,86 +25,27 @@ namespace CallAdmin
       {
         throw new Exception($"You need to setup WebHookUrl and Reasons in config!");
       }
-
-      config.Prefix = ChatTags(config, config.Prefix);
-
-      var messageProperties = config.ChatMessages.GetType().GetProperties();
-
-      foreach (var message in messageProperties)
-      {
-        var value = message.GetValue(config.ChatMessages)?.ToString();
-
-
-        if (string.IsNullOrEmpty(value)) throw new Exception($"You need to setup the message `{message.Name}` in config!");
-
-        message.SetValue(config.ChatMessages, ChatTags(config, value));
-      }
-
       Config = config;
 
-    }
-    private static string ChatTags(CallAdminConfig config, string input)
-    {
-      Dictionary<string, dynamic> tags = new()
-        {
-          { "{DEFAULT}", ChatColors.Default },
-          { "{WHITE}", ChatColors.White },
-          { "{DARKRED}", ChatColors.Darkred },
-          { "{GREEN}", ChatColors.Green },
-          { "{LIGHTYELLOW}", ChatColors.LightYellow },
-          { "{LIGHTBLUE}", ChatColors.LightBlue },
-          { "{OLIVE}", ChatColors.Olive },
-          { "{LIME}", ChatColors.Lime },
-          { "{RED}", ChatColors.Red },
-          { "{LIGHTPURPLE}", ChatColors.LightPurple },
-          { "{PURPLE}", ChatColors.Purple },
-          { "{GREY}", ChatColors.Grey },
-          { "{YELLOW}", ChatColors.Yellow },
-          { "{GOLD}", ChatColors.Gold },
-          { "{SILVER}", ChatColors.Silver },
-          { "{BLUE}", ChatColors.Blue },
-          { "{DARKBLUE}", ChatColors.DarkBlue },
-          { "{BLUEGREY}", ChatColors.BlueGrey },
-          { "{MAGENTA}", ChatColors.Magenta },
-          { "{LIGHTRED}", ChatColors.LightRed },
-          { "{COOLDOWNSECONDS}", config.CooldownRefreshCommandSeconds }
-      };
-
-      foreach (var color in tags)
-      {
-        input = input.Replace(color.Key, color.Value.ToString());
-
-      }
-
-      return input;
     }
   }
   public class CallAdminConfig : BasePluginConfig
   {
-    public override int Version { get; set; } = 5;
-
-    [JsonPropertyName("Prefix")]
-    public string Prefix { get; set; } = "{DEFAULT}[{GREEN}CallAdmin{DEFAULT}]";
+    public override int Version { get; set; } = 6;
     [JsonPropertyName("ServerIpWithPort")]
     public string ServerIpWithPort { get; set; } = "";
     [JsonPropertyName("CooldownRefreshCommandSeconds")]
-    public int CooldownRefreshCommandSeconds { get; set; } = 60;
+    public int CooldownRefreshCommandSeconds { get; set; } = 30;
     [JsonPropertyName("Reasons")]
     public string Reasons { get; set; } = "Hack;Toxic;Camping;Your Custom Reason{CUSTOMREASON}";
     [JsonPropertyName("WebHookUrl")]
-    public bool Debug { get; set; } = false;
-    [JsonPropertyName("Debug")]
     public string WebHookUrl { get; set; } = "";
+    [JsonPropertyName("Debug")]
+    public bool Debug { get; set; } = false;
     [JsonPropertyName("Database")]
     public Database Database { get; set; } = new();
     [JsonPropertyName("Commands")]
     public Commands Commands { get; set; } = new();
-    [JsonPropertyName("ChatMessages")]
-    public ChatMessages ChatMessages { get; set; } = new();
-    [JsonPropertyName("EmbedMessages")]
-    public EmbedMessages EmbedMessages { get; set; } = new();
-    [JsonPropertyName("ChatMenuMessages")]
-    public ChatMenuMessages ChatMenuMessages { get; set; } = new();
   }
   public class Database
   {
@@ -136,78 +77,5 @@ namespace CallAdmin
 
     [JsonPropertyName("ReportHandledPermission")]
     public string ReportHandledPermission { get; set; } = "@css/generic;@css/ban";
-
-  }
-  public class ChatMessages
-  {
-    [JsonPropertyName("MissingCommandPermission")]
-    public string MissingCommandPermission { get; set; } = "{DEFAULT}You don't have permission to use this command!";
-
-    [JsonPropertyName("NoPlayersAvailable")]
-    public string NoPlayersAvailable { get; set; } = "{DEFAULT}There are no players available";
-
-    [JsonPropertyName("InCoolDown")]
-    public string InCoolDown { get; set; } = "You are on a cooldown...wait {COOLDOWNSECONDS} seconds and try again";
-
-    [JsonPropertyName("ReportSent")]
-    public string ReportSent { get; set; } = "{DEFAULT}Your report has been sent to the admins!";
-
-    [JsonPropertyName("WebhookError")]
-    public string WebhookError { get; set; } = "{DEFAULT}There was an error sending the webhook";
-
-    [JsonPropertyName("InsertIntoDatabaseError")]
-    public string InsertIntoDatabaseError { get; set; } = "{DEFAULT}There was an error while inserting into database!";
-
-    [JsonPropertyName("ReportNotFound")]
-    public string ReportNotFound { get; set; } = "{DEFAULT}I couldn't find this report";
-
-    [JsonPropertyName("MarkedAsHandledButNotInDatabase")]
-    public string MarkedAsHandledButNotInDatabase { get; set; } = "{DEFAULT}This report has been marked as handled on Discord but not in database!";
-
-    [JsonPropertyName("ReportMarkedAsHandled")]
-    public string ReportMarkedAsHandled { get; set; } = "{DEFAULT}This report has been marked as handled!";
-    [JsonPropertyName("CustomReason")]
-    public string CustomReason { get; set; } = "{DEFAULT}Type the reason for the report";
-  }
-  public class EmbedMessages
-  {
-    [JsonPropertyName("Title")]
-    public string Title { get; set; } = "Report";
-    [JsonPropertyName("ColorReport")]
-    public int ColorReport { get; set; } = 16711680;
-    [JsonPropertyName("ColorReportHandled")]
-    public int ColorReportHandled { get; set; } = 65280;
-    [JsonPropertyName("Player")]
-    public string Player { get; set; } = "Player";
-    [JsonPropertyName("PlayerName")]
-    public string PlayerName { get; set; } = "Name";
-    [JsonPropertyName("PlayerSteamid")]
-    public string PlayerSteamid { get; set; } = "SteamID";
-    public string Suspect { get; set; } = "Suspect";
-    [JsonPropertyName("SuspectName")]
-    public string SuspectName { get; set; } = "Name";
-    [JsonPropertyName("SuspectSteamid")]
-    public string SuspectSteamid { get; set; } = "SteamID";
-    [JsonPropertyName("Admin")]
-    public string Admin { get; set; } = "Admin";
-    [JsonPropertyName("AdminName")]
-    public string AdminName { get; set; } = "Name";
-    [JsonPropertyName("AdminSteamid")]
-    public string AdminSteamid { get; set; } = "SteamID";
-    [JsonPropertyName("Reason")]
-    public string Reason { get; set; } = "Reason";
-    [JsonPropertyName("Ip")]
-    public string Ip { get; set; } = "Ip";
-    [JsonPropertyName("Map")]
-    public string Map { get; set; } = "Map";
-    [JsonPropertyName("Content")]
-    public string Content { get; set; } = "You can write anything here or leave it blank. Ping a member like this: <@MemberId> or a role: <@&RoleID>";
-  }
-  public class ChatMenuMessages
-  {
-    [JsonPropertyName("ReasonsTitle")]
-    public string ReasonsTitle { get; set; } = "[REPORT] Choose a Reason";
-    [JsonPropertyName("PlayersTitle")]
-    public string PlayersTitle { get; set; } = "[REPORT] Choose a Player";
   }
 }
