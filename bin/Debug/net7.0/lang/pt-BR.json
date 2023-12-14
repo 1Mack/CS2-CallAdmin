@@ -23,7 +23,8 @@
   "Embed.Reason": "Motivo",
   "Embed.Ip": "Ip",
   "Embed.Map": "Mapa",
-  "Embed.Content": "**!{0} {1}** dentro do jogo para marcar como resolvido. Você pode escrever qualquer coisa aqui, como: <@IdDoMembro> ou um cargo: <@&IdDoCargo>",
+  "Embed.ContentReport": "**!{0} {1}** dentro do jogo para marcar como resolvido. Você pode escrever qualquer coisa aqui, como: <@IdDoMembro> ou um cargo: <@&IdDoCargo>",
+  "Embed.ContentReportHandled": "Resolvido pelo {0}",
   "ChatMenu.ReasonsTitle": "[{green}REPORTE{default}] Escolha um motivo",
   "ChatMenu.PlayersTitle": "[{green}REPORTE{default}] Escolhar um Jogador"
 }

@@ -39,8 +39,16 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
   public override void Load(bool hotReload)
   {
 
-    AddCommand($"css_{Config.Commands.ReportPrefix}", "Report a player", ReportCommand);
-    AddCommand($"css_{Config.Commands.ReportHandledPrefix}", "Handle Report", ReportHandledCommand);
+    foreach (string command in Config.Commands.ReportPrefix.Split(";"))
+    {
+      AddCommand($"css_{command}", "Report a player", ReportCommand);
+
+    }
+    foreach (string command in Config.Commands.ReportHandledPrefix.Split(";"))
+    {
+      AddCommand($"css_{command}", "Handle Report", ReportHandledCommand);
+
+    }
 
     AddCommandListener("say", OnPlayerChat);
     AddCommandListener("say_team", OnPlayerChat);

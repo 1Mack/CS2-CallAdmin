@@ -61,7 +61,7 @@ namespace CallAdmin
       string identifier = RandomString(15);
 
       string result = await SendMessageToDiscord(Payload(player.PlayerName, player.SteamID.ToString(), target.PlayerName,
-           target.SteamID.ToString(), hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier));
+           target.SteamID.ToString(), hostName, Server.MapName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier));
 
       if (!result.All(char.IsDigit))
       {
@@ -82,14 +82,16 @@ namespace CallAdmin
         return;
       }
     }
-    public string Payload(string clientName, string clientSteamId, string targetName, string targetSteamId, string hostName, string hostIp, string msg, string identifier, string? adminName = null, string? adminSteamId = null)
+
+    public string Payload(string clientName, string clientSteamId, string targetName, string targetSteamId, string hostName, string mapName, string hostIp, string msg, string identifier, string? adminName = null, string? adminSteamId = null)
     {
-      string content = Localizer["Embed.Content", Config.Commands.ReportHandledPrefix, identifier];
+      string content = Localizer["Embed.ContentReport", Config.Commands.ReportHandledPrefix, identifier].Value;
 
       if (string.IsNullOrEmpty(content))
       {
         content = "\u200B";
       }
+
 
       var Payload = new
       {
@@ -138,7 +140,7 @@ namespace CallAdmin
                                new
                                {
                                    name = Localizer["Embed.Map"].Value,
-                                   value = Server.MapName,
+                                   value = mapName,
                                    inline = true
                                }
                            }
@@ -149,36 +151,46 @@ namespace CallAdmin
       if (!string.IsNullOrEmpty(adminName) && !string.IsNullOrEmpty(adminSteamId))
       {
 
-        var newField =
-           new
-           {
-             name = Localizer["Embed.Admin"].Value,
-             value =
-                    $"**{Localizer["Embed.AdminName"]}:** {adminName}\n**{Localizer["Embed.AdminSteamid"]}:** [{new SteamID(ulong.Parse(adminSteamId)).SteamId2}](https://steamcommunity.com/profiles/{adminSteamId}/)",
-             inline = true
-           };
+        content = Localizer["Embed.ContentReportHandled", adminName].Value;
+
+        if (string.IsNullOrEmpty(content))
+        {
+          content = "\u200B";
+        }
+
         var embed = Payload.embeds[0];
 
-        var modifiedEmbed = new
+        Payload = new
         {
-          embed.title,
-          color = Config.Embed.ColorReportHandled,
-          embed.footer,
-          fields = new[]
+          content,
+          embeds = new[]
           {
-           embed.fields[0],
-           embed.fields[1],
-           embed.fields[2],
-           newField,
-           embed.fields[2],
-           embed.fields[2],
-           embed.fields[3],
-           embed.fields[4],
-           embed.fields[5]
-          }
+            new
+            {
+              embed.title,
+              color = Config.Embed.ColorReportHandled,
+              embed.footer,
+              fields = new[]
+              {
+                embed.fields[0],
+                embed.fields[1],
+                embed.fields[2],
+                new
+                {
+                  name = Localizer["Embed.Admin"].Value,
+                  value =
+                          $"**{Localizer["Embed.AdminName"]}:** {adminName}\n**{Localizer["Embed.AdminSteamid"]}:** [{new SteamID(ulong.Parse(adminSteamId)).SteamId2}](https://steamcommunity.com/profiles/{adminSteamId}/)",
+                  inline = true
+                },
+                embed.fields[2],
+                embed.fields[2],
+                embed.fields[3],
+                embed.fields[4],
+                embed.fields[5]
+              }
+    }
+  }
         };
-
-        Payload.embeds[0] = modifiedEmbed;
 
       }
 

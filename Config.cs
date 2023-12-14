@@ -67,7 +67,7 @@ namespace CallAdmin
   public class Commands
   {
     [JsonPropertyName("ReportPrefix")]
-    public string ReportPrefix { get; set; } = "report";
+    public string ReportPrefix { get; set; } = "report;calladmin";
 
     [JsonPropertyName("ReportPermission")]
     public string ReportPermission { get; set; } = "";
@@ -75,10 +75,10 @@ namespace CallAdmin
     public bool ReportHandledEnabled { get; set; } = true;
 
     [JsonPropertyName("ReportHandledPrefix")]
-    public string ReportHandledPrefix { get; set; } = "report_handled";
+    public string ReportHandledPrefix { get; set; } = "report_handled;handled";
 
     [JsonPropertyName("ReportHandledPermission")]
-    public string ReportHandledPermission { get; set; } = "@css/generic;@css/ban";
+    public string ReportHandledPermission { get; set; } = "@css/ban";
   }
   public class Embed
   {
