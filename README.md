@@ -27,10 +27,10 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
     "Prefix": "call_admin"
   },
   "Commands": {
-    "ReportPrefix": "report",
+    "ReportPrefix": "report;calladmin",
     "ReportPermission": "",
     "ReportHandledEnabled": true,
-    "ReportHandledPrefix": "report_handled",
+    "ReportHandledPrefix": "report_handled;handled",
     "ReportHandledPermission": "@css/generic;@css/ban"
   },
   "Embed": {
