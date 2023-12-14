@@ -31,7 +31,7 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
     "ReportPermission": "",
     "ReportHandledEnabled": true,
     "ReportHandledPrefix": "report_handled;handled",
-    "ReportHandledPermission": "@css/generic;@css/ban"
+    "ReportHandledPermission": "@css/ban"
   },
   "Embed": {
     "ColorReport": 16711680,
