@@ -71,7 +71,7 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
 
     var findTarget = Utilities.GetPlayerFromIndex((int)findPlayer.Target);
 
-    _ = HandleSentToDiscordAsync(player, findTarget, info.ArgString.Replace("\"", ""));
+    HandleSentToDiscordAsync(player, findTarget, info.ArgString.Replace("\"", ""));
 
     findPlayer.Target = null;
     findPlayer.HandleMessage = false;

@@ -11,7 +11,6 @@ namespace CallAdmin
   {
     public async Task<string> SendMessageToDiscord(dynamic json, string? messageId = null)
     {
-
       try
       {
         var httpClient = new HttpClient();
@@ -40,10 +39,17 @@ namespace CallAdmin
       public required string id { get; set; }
     }
 
-    private async Task HandleSentToDiscordAsync(CCSPlayerController player, CCSPlayerController target, string reason)
+    private void HandleSentToDiscordAsync(CCSPlayerController player, CCSPlayerController target, string reason)
     {
       string? hostName = ConVar.Find("hostname")?.StringValue;
-
+      dynamic infos = new
+      {
+        playerName = player.PlayerName,
+        playerSteamId = player.SteamID.ToString(),
+        targetName = target.PlayerName,
+        targetSteamId = target.SteamID.ToString(),
+        mapName = Server.MapName
+      };
 
       if (string.IsNullOrEmpty(hostName))
       {
@@ -60,27 +66,38 @@ namespace CallAdmin
 
       string identifier = RandomString(15);
 
-      string result = await SendMessageToDiscord(Payload(player.PlayerName, player.SteamID.ToString(), target.PlayerName,
-           target.SteamID.ToString(), hostName, Server.MapName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier));
-
-      if (!result.All(char.IsDigit))
+      Task.Run(async () =>
       {
-        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
 
-        return;
-      }
-      player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportSent"]}");
+        string result = await SendMessageToDiscord(Payload(infos.playerName, infos.playerSteamId, infos.targetName,
+                  infos.targetSteamId, hostName, infos.mapName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier));
 
-      if (!Config.Commands.ReportHandledEnabled) return;
+        if (!result.All(char.IsDigit))
+        {
+          Server.NextFrame(() =>
+          {
+            player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
+          });
 
-      bool resultQuery = await InsertIntoDatabase(player.PlayerName, player.SteamID.ToString(), target.PlayerName,
-                 target.SteamID.ToString(), reason, result, identifier, hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort);
+          return;
+        }
+        Server.NextFrame(() =>
+         {
+           player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportSent"]}");
+         });
 
-      if (!resultQuery)
-      {
-        Console.WriteLine($"{Localizer["Prefix"]} {Localizer["InsertIntoDatabaseError"]}");
-        return;
-      }
+
+        if (!Config.Commands.ReportHandledEnabled) return;
+
+        bool resultQuery = await InsertIntoDatabase(infos.playerName, infos.playerSteamId, infos.targetName,
+                   infos.targetSteamId, reason, result, identifier, hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort);
+
+        if (!resultQuery)
+        {
+          Console.WriteLine($"{Localizer["Prefix"]} {Localizer["InsertIntoDatabaseError"]}");
+          return;
+        }
+      });
     }
 
     public string Payload(string clientName, string clientSteamId, string targetName, string targetSteamId, string hostName, string mapName, string hostIp, string msg, string identifier, string? adminName = null, string? adminSteamId = null)
