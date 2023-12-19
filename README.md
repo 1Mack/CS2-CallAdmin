@@ -27,11 +27,11 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
     "Prefix": "call_admin"
   },
   "Commands": {
-    "ReportPrefix": "report",
+    "ReportPrefix": "report;calladmin",
     "ReportPermission": "",
     "ReportHandledEnabled": true,
-    "ReportHandledPrefix": "report_handled",
-    "ReportHandledPermission": "@css/generic;@css/ban"
+    "ReportHandledPrefix": "report_handled;handled",
+    "ReportHandledPermission": "@css/ban"
   },
   "Embed": {
     "ColorReport": 16711680,
@@ -40,12 +40,16 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
   "ConfigVersion": 7
 }
 ```
-## Commands
+## Commands 
 - **`report`** - Reports a Player; **(`#css/admin` group is required for use)**
 - **`report_handled [identifier]`** - Mark a report as handled; **(`@css/generic;@css/ban` flag is required for use)**
+  
+> [!NOTE]
+> To add more command's name, just separete them with ";" -> report;calladmin
 
 ## Translations
 You can choose a translation on the core.json of counterstrikesharp or type !lang lang ***(Path: `csgo/addons/counterstrikesharp/plugins/CallAdmin/lang`)***
+
 ```
 {
   "Prefix": "[{green}CallAdmin{default}]",
@@ -72,7 +76,8 @@ You can choose a translation on the core.json of counterstrikesharp or type !lan
   "Embed.Reason": "Reason",
   "Embed.Ip": "Ip",
   "Embed.Map": "Map",
-  "Embed.Content": "**!{0} {1}** in the game to mark this report as handled. -> You can write anything here or leave it blank. Ping a member like this: <@MemberId> or a role: <@&RoleId>",
+  "Embed.ContentReport": "!{0} {1}** in the game to mark this report as handled. -> You can write anything here or leave it blank. Ping a member like this: <@MemberId> or a role: <@&RoleId>",
+  "Embed.ContentReportHandled": "Handled by {0}",
   "ChatMenu.ReasonsTitle": "[{green}REPORT{default}] Choose a Reason",
   "ChatMenu.PlayersTitle": "[{green}REPORT{default}] Choose a Player"
 }
