@@ -2,6 +2,7 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Commands;
+using static CounterStrikeSharp.API.Core.Listeners;
 
 namespace CallAdmin;
 
@@ -30,7 +31,7 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
 
   private string DatabaseConnectionString = string.Empty;
 
-  private readonly DateTime[] commandCooldown = new DateTime[Server.MaxPlayers];
+  private readonly Dictionary<int, DateTime> commandCooldown = new();
   private readonly List<ReportedPlayersClass> ReportedPlayers = new();
 
 
@@ -58,6 +59,14 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
       TestDatabaseConnection();
     }
 
+    RegisterListener<OnClientDisconnect>(playerSlot =>
+    {
+      commandCooldown.Remove(playerSlot);
+    });
+    RegisterListener<OnClientPutInServer>(playerSlot =>
+    {
+      commandCooldown.Add(playerSlot, DateTime.UtcNow);
+    });
   }
 
 

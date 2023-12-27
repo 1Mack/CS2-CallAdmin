@@ -20,13 +20,8 @@ namespace CallAdmin
         return;
       }
 
-      int playerIndex = (int)player.Index;
-
-      if (commandCooldown != null && DateTime.UtcNow >= commandCooldown[playerIndex].AddSeconds(Config.CooldownRefreshCommandSeconds))
+      if (CanExecuteCommand(player.Slot))
       {
-
-        commandCooldown[playerIndex] = DateTime.UtcNow;
-
         string identifier = command.ArgString.Split(" ")[0].Trim();
         string playerName = player.PlayerName;
         string playerSteamid = player.SteamID.ToString();

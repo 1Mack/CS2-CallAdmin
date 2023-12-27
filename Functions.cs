@@ -5,116 +5,115 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities;
 
-namespace CallAdmin
+namespace CallAdmin;
+public partial class CallAdmin
 {
-  public partial class CallAdmin
+  public async Task<string> SendMessageToDiscord(dynamic json, string? messageId = null)
   {
-    public async Task<string> SendMessageToDiscord(dynamic json, string? messageId = null)
+    try
     {
-      try
+      var httpClient = new HttpClient();
+      var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+      var result = string.IsNullOrEmpty(messageId) ? httpClient.PostAsync($"{Config.WebHookUrl}?wait=true", content).Result : httpClient.PatchAsync($"{Config.WebHookUrl}/messages/{messageId}", content).Result;
+
+      if (!result.IsSuccessStatusCode)
       {
-        var httpClient = new HttpClient();
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var result = string.IsNullOrEmpty(messageId) ? httpClient.PostAsync($"{Config.WebHookUrl}?wait=true", content).Result : httpClient.PatchAsync($"{Config.WebHookUrl}/messages/{messageId}", content).Result;
-
-        if (!result.IsSuccessStatusCode)
-        {
-          Console.WriteLine(result);
-          return "There was an error sending the webhook";
-        }
-
-        var toJson = JsonSerializer.Deserialize<IWebHookSuccess>(await result.Content.ReadAsStringAsync());
-        return string.IsNullOrEmpty(toJson?.id) ? "Unable to get message ID" : toJson.id;
-
+        Console.WriteLine(result);
+        return "There was an error sending the webhook";
       }
-      catch (Exception e)
-      {
-        Console.WriteLine(e);
-        throw;
-      }
+
+      var toJson = JsonSerializer.Deserialize<IWebHookSuccess>(await result.Content.ReadAsStringAsync());
+      return string.IsNullOrEmpty(toJson?.id) ? "Unable to get message ID" : toJson.id;
+
     }
-    public class IWebHookSuccess
+    catch (Exception e)
     {
-      public required string id { get; set; }
+      Console.WriteLine(e);
+      throw;
+    }
+  }
+  public class IWebHookSuccess
+  {
+    public required string id { get; set; }
+  }
+
+  private void HandleSentToDiscordAsync(CCSPlayerController player, CCSPlayerController target, string reason)
+  {
+    string? hostName = ConVar.Find("hostname")?.StringValue;
+    dynamic infos = new
+    {
+      playerName = player.PlayerName,
+      playerSteamId = player.SteamID.ToString(),
+      targetName = target.PlayerName,
+      targetSteamId = target.SteamID.ToString(),
+      mapName = Server.MapName
+    };
+
+    if (string.IsNullOrEmpty(hostName))
+    {
+      hostName = "Empty";
     }
 
-    private void HandleSentToDiscordAsync(CCSPlayerController player, CCSPlayerController target, string reason)
+    string RandomString(int length)
     {
-      string? hostName = ConVar.Find("hostname")?.StringValue;
-      dynamic infos = new
+      Random random = new();
+      const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      return new string(Enumerable.Repeat(chars, length)
+          .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+
+    string identifier = RandomString(15);
+
+    Task.Run(async () =>
+    {
+
+      string result = await SendMessageToDiscord(Payload(infos.playerName, infos.playerSteamId, infos.targetName,
+                infos.targetSteamId, hostName, infos.mapName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier));
+
+      if (!result.All(char.IsDigit))
       {
-        playerName = player.PlayerName,
-        playerSteamId = player.SteamID.ToString(),
-        targetName = target.PlayerName,
-        targetSteamId = target.SteamID.ToString(),
-        mapName = Server.MapName
-      };
-
-      if (string.IsNullOrEmpty(hostName))
-      {
-        hostName = "Empty";
-      }
-
-      string RandomString(int length)
-      {
-        Random random = new();
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        return new string(Enumerable.Repeat(chars, length)
-            .Select(s => s[random.Next(s.Length)]).ToArray());
-      }
-
-      string identifier = RandomString(15);
-
-      Task.Run(async () =>
-      {
-
-        string result = await SendMessageToDiscord(Payload(infos.playerName, infos.playerSteamId, infos.targetName,
-                  infos.targetSteamId, hostName, infos.mapName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier));
-
-        if (!result.All(char.IsDigit))
-        {
-          Server.NextFrame(() =>
-          {
-            player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
-          });
-
-          return;
-        }
         Server.NextFrame(() =>
-         {
-           player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportSent"]}");
-         });
-
-
-        if (!Config.Commands.ReportHandledEnabled) return;
-
-        bool resultQuery = await InsertIntoDatabase(infos.playerName, infos.playerSteamId, infos.targetName,
-                   infos.targetSteamId, reason, result, identifier, hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort);
-
-        if (!resultQuery)
         {
-          Console.WriteLine($"{Localizer["Prefix"]} {Localizer["InsertIntoDatabaseError"]}");
-          return;
-        }
-      });
+          player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
+        });
+
+        return;
+      }
+      Server.NextFrame(() =>
+       {
+         player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportSent"]}");
+       });
+
+
+      if (!Config.Commands.ReportHandledEnabled) return;
+
+      bool resultQuery = await InsertIntoDatabase(infos.playerName, infos.playerSteamId, infos.targetName,
+                 infos.targetSteamId, reason, result, identifier, hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort);
+
+      if (!resultQuery)
+      {
+        Console.WriteLine($"{Localizer["Prefix"]} {Localizer["InsertIntoDatabaseError"]}");
+        return;
+      }
+    });
+  }
+
+  public string Payload(string clientName, string clientSteamId, string targetName, string targetSteamId, string hostName, string mapName, string hostIp, string msg, string identifier, string? adminName = null, string? adminSteamId = null)
+  {
+    string content = Localizer["Embed.ContentReport", Config.Commands.ReportHandledPrefix, identifier].Value;
+
+    if (string.IsNullOrEmpty(content))
+    {
+      content = "\u200B";
     }
 
-    public string Payload(string clientName, string clientSteamId, string targetName, string targetSteamId, string hostName, string mapName, string hostIp, string msg, string identifier, string? adminName = null, string? adminSteamId = null)
+
+    var Payload = new
     {
-      string content = Localizer["Embed.ContentReport", Config.Commands.ReportHandledPrefix, identifier].Value;
-
-      if (string.IsNullOrEmpty(content))
-      {
-        content = "\u200B";
-      }
-
-
-      var Payload = new
-      {
-        content,
-        embeds = new[]
-                      {
+      content,
+      embeds = new[]
+                    {
                        new
                        {
                            title = $"{Localizer["Embed.Title"]} - {identifier}",
@@ -163,25 +162,25 @@ namespace CallAdmin
                            }
                        }
                    }
-      };
+    };
 
-      if (!string.IsNullOrEmpty(adminName) && !string.IsNullOrEmpty(adminSteamId))
+    if (!string.IsNullOrEmpty(adminName) && !string.IsNullOrEmpty(adminSteamId))
+    {
+
+      content = Localizer["Embed.ContentReportHandled", adminName].Value;
+
+      if (string.IsNullOrEmpty(content))
       {
+        content = "\u200B";
+      }
 
-        content = Localizer["Embed.ContentReportHandled", adminName].Value;
+      var embed = Payload.embeds[0];
 
-        if (string.IsNullOrEmpty(content))
+      Payload = new
+      {
+        content,
+        embeds = new[]
         {
-          content = "\u200B";
-        }
-
-        var embed = Payload.embeds[0];
-
-        Payload = new
-        {
-          content,
-          embeds = new[]
-          {
             new
             {
               embed.title,
@@ -207,11 +206,30 @@ namespace CallAdmin
               }
     }
   }
-        };
+      };
 
+    }
+
+    return JsonSerializer.Serialize(Payload);
+  }
+  public bool CanExecuteCommand(int playerSlot)
+  {
+    if (commandCooldown.ContainsKey(playerSlot))
+    {
+      if (DateTime.UtcNow >= commandCooldown[playerSlot])
+      {
+        commandCooldown[playerSlot] = commandCooldown[playerSlot].AddSeconds(Config.CooldownRefreshCommandSeconds);
+        return true;
       }
-
-      return JsonSerializer.Serialize(Payload);
+      else
+      {
+        return false;
+      }
+    }
+    else
+    {
+      commandCooldown.Add(playerSlot, DateTime.UtcNow.AddSeconds(Config.CooldownRefreshCommandSeconds));
+      return true;
     }
   }
 }

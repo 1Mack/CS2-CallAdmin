@@ -18,14 +18,8 @@ namespace CallAdmin
         command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["MissingCommandPermission"]}");
         return;
       }
-
-      int playerIndex = (int)player.Index;
-
-      if (commandCooldown != null && DateTime.UtcNow >= commandCooldown[playerIndex].AddSeconds(Config.CooldownRefreshCommandSeconds))
+      if (CanExecuteCommand(player.Slot))
       {
-
-        commandCooldown[playerIndex] = DateTime.UtcNow;
-
         ChatMenu reportMenu = new(Localizer["ChatMenu.PlayersTitle"]);
 
         foreach (var playerOnServer in Utilities.GetPlayers().Where(p => p != null && !p.IsBot && !p.IsHLTV && p.AuthorizedSteamID != null))
