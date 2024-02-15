@@ -1,5 +1,4 @@
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Utils;
 using System.Text.Json.Serialization;
 
 namespace CallAdmin
@@ -31,7 +30,7 @@ namespace CallAdmin
   }
   public class CallAdminConfig : BasePluginConfig
   {
-    public override int Version { get; set; } = 7;
+    public override int Version { get; set; } = 8;
     [JsonPropertyName("ServerIpWithPort")]
     public string ServerIpWithPort { get; set; } = "";
     [JsonPropertyName("CooldownRefreshCommandSeconds")]
@@ -71,6 +70,7 @@ namespace CallAdmin
 
     [JsonPropertyName("ReportPermission")]
     public string ReportPermission { get; set; } = "";
+
     [JsonPropertyName("ReportHandledEnabled")]
     public bool ReportHandledEnabled { get; set; } = true;
 
@@ -79,6 +79,30 @@ namespace CallAdmin
 
     [JsonPropertyName("ReportHandledPermission")]
     public string ReportHandledPermission { get; set; } = "@css/ban";
+    [JsonPropertyName("ReportHandledMaxTimeMinutes")]
+    public float ReportHandledMaxTimeMinutes { get; set; } = 15;
+    [JsonPropertyName("CanReportPlayerAlreadyReported")]
+    public int CanReportPlayerAlreadyReported { get; set; } = 0;
+    [JsonPropertyName("CanReportPlayerAlreadyReportedMaxTimeMinutes")]
+    public double CanReportPlayerAlreadyReportedMaxTimeMinutes { get; set; } = 10;
+    [JsonPropertyName("ReportCancelByOwnerEnabled")]
+    public bool ReportCancelByOwnerEnabled { get; set; } = true;
+    [JsonPropertyName("ReportCancelByOwnerPrefix")]
+    public string ReportCancelByOwnerPrefix { get; set; } = "abort;cancel";
+    [JsonPropertyName("ReportCancelByOwnerMaxTimeMinutes")]
+    public double ReportCancelByOwnerMaxTimeMinutes { get; set; } = 5.0;
+    [JsonPropertyName("ReportCancelByOwnerDeleteOrEditEmbed")]
+    public int ReportCancelByOwnerDeleteOrEditEmbed { get; set; } = 1;
+    [JsonPropertyName("ReportCancelByStaffEnabled")]
+    public bool ReportCancelByStaffEnabled { get; set; } = true;
+    [JsonPropertyName("ReportCancelByStaffPrefix")]
+    public string ReportCancelByStaffPrefix { get; set; } = "report_cancel";
+    [JsonPropertyName("ReportCancelByStaffPermission")]
+    public string ReportCancelByStaffPermission { get; set; } = "@css/ban";
+    [JsonPropertyName("ReportCancelByStaffMaxTimeMinutes")]
+    public double ReportCancelByStaffMaxTimeMinutes { get; set; } = 5.0;
+    [JsonPropertyName("ReportCancelByStaffDeleteOrEditEmbed")]
+    public bool ReportCancelByStaffDeleteOrEditEmbed { get; set; } = true;
   }
   public class Embed
   {
@@ -87,6 +111,7 @@ namespace CallAdmin
 
     [JsonPropertyName("ColorReportHandled")]
     public int ColorReportHandled { get; set; } = 65280;
-
+    [JsonPropertyName("ColorReportCanceled")]
+    public int ColorReportCanceled { get; set; } = 0;
   }
 }

@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using CounterStrikeSharp.API;
@@ -37,6 +39,23 @@ public partial class CallAdmin
   {
     public required string id { get; set; }
   }
+  public bool DeleteMessageOnDiscord(string messageId)
+  {
+    try
+    {
+      var httpClient = new HttpClient();
+
+      var result = httpClient.DeleteAsync($"{Config.WebHookUrl}/messages/{messageId}").Result;
+
+      return result.StatusCode == HttpStatusCode.NoContent;
+
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e);
+      return false;
+    }
+  }
 
   private void HandleSentToDiscordAsync(CCSPlayerController player, CCSPlayerController target, string reason)
   {
@@ -49,6 +68,28 @@ public partial class CallAdmin
       targetSteamId = target.SteamID.ToString(),
       mapName = Server.MapName
     };
+
+    if (Config.Commands.CanReportPlayerAlreadyReported >= 1)
+    {
+      Task.Run(async () =>
+      {
+        var result = await FindReportedPlayer(infos.playerSteamId, infos.targetSteamid, infos.reason);
+
+        if (!string.IsNullOrEmpty(result) || result != "skip")
+        {
+          Server.NextFrame(() =>
+          {
+            if (result == "erro")
+              player.PrintToChat($"{Localizer["Prefix"]} {Localizer["InternalServerError"]}");
+            else if (result == 1 || result == 4)
+              player.PrintToChat($"{Localizer["Prefix"]} {Localizer["PlayerAlreadyReportedByYourself"]}");
+            else if (result == 2 || result == 3)
+              player.PrintToChat($"{Localizer["Prefix"]} {Localizer["PlayerAlreadyReported"]}");
+          });
+          return;
+        }
+      });
+    }
 
     if (string.IsNullOrEmpty(hostName))
     {
@@ -99,7 +140,7 @@ public partial class CallAdmin
     });
   }
 
-  public string Payload(string clientName, string clientSteamId, string targetName, string targetSteamId, string hostName, string mapName, string hostIp, string msg, string identifier, string? adminName = null, string? adminSteamId = null)
+  public string Payload(string clientName, string clientSteamId, string targetName, string targetSteamId, string hostName, string mapName, string hostIp, string msg, string identifier, bool? canceled = false, string? adminName = null, string? adminSteamId = null)
   {
     string content = Localizer["Embed.ContentReport", Config.Commands.ReportHandledPrefix, identifier].Value;
 
@@ -169,7 +210,7 @@ public partial class CallAdmin
 
       content = Localizer["Embed.ContentReportHandled", adminName].Value;
 
-      if (string.IsNullOrEmpty(content))
+      if (string.IsNullOrEmpty(content) || canceled == true)
       {
         content = "\u200B";
       }
@@ -184,7 +225,7 @@ public partial class CallAdmin
             new
             {
               embed.title,
-              color = Config.Embed.ColorReportHandled,
+              color = canceled == false ? Config.Embed.ColorReportHandled : Config.Embed.ColorReportCanceled,
               embed.footer,
               fields = new[]
               {
@@ -193,7 +234,7 @@ public partial class CallAdmin
                 embed.fields[2],
                 new
                 {
-                  name = Localizer["Embed.Admin"].Value,
+                  name = canceled == false ? Localizer["Embed.Admin"].Value : Localizer["Embed.CanceledBy"].Value,
                   value =
                           $"**{Localizer["Embed.AdminName"]}:** {adminName}\n**{Localizer["Embed.AdminSteamid"]}:** [{new SteamID(ulong.Parse(adminSteamId)).SteamId2}](https://steamcommunity.com/profiles/{adminSteamId}/)",
                   inline = true

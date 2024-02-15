@@ -1,4 +1,6 @@
 C:\Users\marcos\Documents\mack\csgo\cs2\plugins\CallAdmin\bin\Debug\net7.0\publish\lang\en.json
+C:\Users\marcos\Documents\mack\csgo\cs2\plugins\CallAdmin\bin\Debug\net7.0\publish\lang\lv.json
+C:\Users\marcos\Documents\mack\csgo\cs2\plugins\CallAdmin\bin\Debug\net7.0\publish\lang\pl.json
 C:\Users\marcos\Documents\mack\csgo\cs2\plugins\CallAdmin\bin\Debug\net7.0\publish\lang\pt-BR.json
 C:\Users\marcos\Documents\mack\csgo\cs2\plugins\CallAdmin\bin\Debug\net7.0\publish\CallAdmin.dll
 C:\Users\marcos\Documents\mack\csgo\cs2\plugins\CallAdmin\bin\Debug\net7.0\publish\CallAdmin.deps.json
