@@ -12,7 +12,7 @@ All reports are stored in the database. `(optional)`
 The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/configs/plugins/CallAdmin`)***
 ```
 {
-  "Version": 7,
+  "Version": 8,
   "ServerIpWithPort": "",
   "CooldownRefreshCommandSeconds": 30,
   "Reasons": "Hack;Toxic;Camping;Your Custom Reason{CUSTOMREASON}",
@@ -31,13 +31,25 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
     "ReportPermission": "",
     "ReportHandledEnabled": true,
     "ReportHandledPrefix": "report_handled;handled",
-    "ReportHandledPermission": "@css/ban"
+    "ReportHandledPermission": "@css/ban",
+    "ReportHandledMaxTimeMinutes": 15,
+    "CanReportPlayerAlreadyReported": -1,
+    "ReportCancelByOwnerEnabled": true,
+    "ReportCancelByOwnerPrefix": "abort;cancel",
+    "ReportCancelByOwnerMaxTimeMinutes": 5,
+    "ReportCancelByOwnerDeleteOrEditEmbed": 2,
+    "ReportCancelByStaffEnabled": true,
+    "ReportCancelByStaffPrefix": "report_cancel",
+    "ReportCancelByStaffPermission": "@css/ban",
+    "ReportCancelByStaffMaxTimeMinutes": 5,
+    "ReportCancelByStaffDeleteOrEditEmbed": true
   },
   "Embed": {
     "ColorReport": 16711680,
-    "ColorReportHandled": 65280
+    "ColorReportHandled": 65280,
+    "ColorReportCanceled": 0
   },
-  "ConfigVersion": 7
+  "ConfigVersion": 8
 }
 ```
 ## Commands 
@@ -59,9 +71,14 @@ You can choose a translation on the core.json of counterstrikesharp or type !lan
   "ReportSent": "Your report has been sent to the admins!",
   "WebhookError": "There was an error sending the webhook",
   "InsertIntoDatabaseError": "There was an error while inserting into database!",
+  "InternalServerError": "There was an internal server error",
   "ReportNotFound": "I couldn't find this report",
   "MarkedAsHandledButNotInDatabase": "This report has been marked as handled on Discord but not in database!",
+  "MarkedAsDeletedButNotInDatabase": "This report has been marked as deleted on Discord but not in database!",
   "ReportMarkedAsHandled": "This report has been marked as {green}handled!",
+  "ReportMarkedAsDeleted": "This report has been marked as {green}deleted!",
+  "PlayerAlreadyReported": "This player has already been {green}reported!",
+  "PlayerAlreadyReportedByYourself": "This player has already been {green}reported by yourself!",
   "CustomReason": "Type the reason for the report",
   "Embed.Title": "Report",
   "Embed.Player": "Player",
@@ -71,6 +88,7 @@ You can choose a translation on the core.json of counterstrikesharp or type !lan
   "Embed.SuspectName": "Name",
   "Embed.SuspectSteamid": "SteamID",
   "Embed.Admin": "Admin",
+  "Embed.CanceledBy": "Canceled By",
   "Embed.AdminName": "Name",
   "Embed.AdminSteamid": "SteamID",
   "Embed.Reason": "Reason",
