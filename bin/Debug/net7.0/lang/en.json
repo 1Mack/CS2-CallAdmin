@@ -14,6 +14,8 @@
   "ReportMarkedAsDeleted": "This report has been marked as {green}deleted!",
   "PlayerAlreadyReported": "This player has already been {green}reported!",
   "PlayerAlreadyReportedByYourself": "This player has already been {green}reported by yourself!",
+  "ReasonToKick": "You have been kicked off the server due to too many reports",
+  "ReasonToBan": "You have been banned off the server due to too many reports",
   "CustomReason": "Type the reason for the report",
   "Embed.Title": "Report",
   "Embed.Player": "Player",

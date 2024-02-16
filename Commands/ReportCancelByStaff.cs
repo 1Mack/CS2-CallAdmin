@@ -25,7 +25,7 @@ public partial class CallAdmin
 
       Task.Run(async () =>
       {
-        var query = await GetReportDatabase(null, playerSteamid, Config.Commands.ReportCancelByOwnerMaxTimeMinutes);
+        var query = await GetReportDatabase(null, playerSteamid, Config.Commands.ReportCancelByStaffMaxTimeMinutes);
 
         if (query == null)
         {
@@ -36,7 +36,7 @@ public partial class CallAdmin
           return;
         }
 
-        if (Config.Commands.ReportCancelByOwnerDeleteOrEditEmbed == 1)
+        if (Config.Commands.ReportCancelByStaffDeleteOrEditEmbed == 1)
         {
           bool deleteResult = await DeleteMessageOnDiscord(query.message_id);
 

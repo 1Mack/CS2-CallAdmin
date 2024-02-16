@@ -6,12 +6,7 @@ using static CounterStrikeSharp.API.Core.Listeners;
 
 namespace CallAdmin;
 
-public class CustomMessagePlayersClass
-{
-  public required int Player { get; set; }
-  public int? Target { get; set; }
-  public required bool HandleMessage { get; set; }
-}
+
 [MinimumApiVersion(124)]
 public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
 {
@@ -19,14 +14,14 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
   public override string ModuleName => "CallAdmin";
   public override string ModuleDescription => "Report System with database support";
   public override string ModuleAuthor => "1MaaaaaacK";
-  public override string ModuleVersion => "1.1.0";
-  public static int ConfigVersion => 8;
+  public override string ModuleVersion => "1.1.1";
+  public static int ConfigVersion => 9;
 
   private string DatabaseConnectionString = string.Empty;
 
   private readonly Dictionary<int, DateTime> commandCooldown = new();
-
   private readonly List<CustomMessagePlayersClass> CustomMessagePlayers = new();
+  private readonly List<ReportedPlayersClass> ReportedPlayers = new();
 
   public override void Load(bool hotReload)
   {
@@ -34,22 +29,18 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
     foreach (string command in Config.Commands.ReportPrefix.Split(";"))
     {
       AddCommand($"css_{command}", "Report a player", ReportCommand);
-
     }
     foreach (string command in Config.Commands.ReportHandledPrefix.Split(";"))
     {
       AddCommand($"css_{command}", "Handle Report", ReportHandledCommand);
-
     }
     foreach (string command in Config.Commands.ReportCancelByOwnerPrefix.Split(";"))
     {
       AddCommand($"css_{command}", "Cancel last report by player", ReportCancelByOwner);
-
     }
     foreach (string command in Config.Commands.ReportCancelByStaffPrefix.Split(";"))
     {
       AddCommand($"css_{command}", "Cancel a report by staff", ReportCancelByStaff);
-
     }
 
     AddCommandListener("say", OnPlayerChat);
@@ -70,6 +61,10 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
     RegisterListener<OnClientPutInServer>(playerSlot =>
     {
       commandCooldown.Add(playerSlot, DateTime.UtcNow);
+    });
+    RegisterListener<OnMapStart>(mapName =>
+    {
+      ReportedPlayers.Clear();
     });
   }
 

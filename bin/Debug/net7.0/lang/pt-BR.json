@@ -14,6 +14,8 @@
   "ReportMarkedAsDeleted": "Esse reporte foi marcado como {green}deletado!",
   "PlayerAlreadyReported": "Esse jogador já foi {green}reportado!",
   "PlayerAlreadyReportedByYourself": "Esse jogador já foi {green}reportado por você!",
+  "ReasonToKick": "Você foi kikado do servidor por levar muitos reportes",
+  "ReasonToBan": "Você foi banido do servidor por levar muitos reportes",
   "CustomReason": "Escrever o motivo do reporte",
   "Embed.Title": "Reporte",
   "Embed.Player": "Jogador",

@@ -17,7 +17,7 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
   "CooldownRefreshCommandSeconds": 30,
   "Reasons": "Hack;Toxic;Camping;Your Custom Reason{CUSTOMREASON}",
   "WebHookUrl": "",
-  "Debug": true,
+  "Debug": true = You can report yourself;
   "Database": {
     "Host": "",
     "Port": 3306,
@@ -33,16 +33,20 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
     "ReportHandledPrefix": "report_handled;handled",
     "ReportHandledPermission": "@css/ban",
     "ReportHandledMaxTimeMinutes": 15,
-    "CanReportPlayerAlreadyReported": -1,
+    "CanReportPlayerAlreadyReported": 0 = Don't check; 1 = check victim steamid AND suspect steamid; 2 = check only suspect steamid; 3 = check suspect steamid AND reason; 4 = check victim steamid AND suspect steamid AND reason,
     "ReportCancelByOwnerEnabled": true,
     "ReportCancelByOwnerPrefix": "abort;cancel",
     "ReportCancelByOwnerMaxTimeMinutes": 5,
-    "ReportCancelByOwnerDeleteOrEditEmbed": 2,
+    "ReportCancelByOwnerDeleteOrEditEmbed": 1 = DELETE; 0 = EDIT,
     "ReportCancelByStaffEnabled": true,
     "ReportCancelByStaffPrefix": "report_cancel",
     "ReportCancelByStaffPermission": "@css/ban",
     "ReportCancelByStaffMaxTimeMinutes": 5,
-    "ReportCancelByStaffDeleteOrEditEmbed": true
+    "ReportCancelByStaffDeleteOrEditEmbed": 1 = DELETE; 0 = EDIT,
+    "MaximumReportsPlayerCanReceiveBeforeAction": 0 = Disabled
+    "ActionToDoWhenMaximumLimitReached": 0 = Nothing; 1 = Kick; 2 = Ban
+    "IfActionIsBanThenBanForHowManyMinutes": 0 = Permanent;
+    "HowShouldBeChecked": 0 = Default; > 0 = Check for minutes, so if a player has MaximumReportsPlayerCanReceiveBeforeAction in HowShouldBeChecked minutes, an ActionToDoWhenMaximumLimitReached will be called
   },
   "Embed": {
     "ColorReport": 16711680,
@@ -79,6 +83,8 @@ You can choose a translation on the core.json of counterstrikesharp or type !lan
   "ReportMarkedAsDeleted": "This report has been marked as {green}deleted!",
   "PlayerAlreadyReported": "This player has already been {green}reported!",
   "PlayerAlreadyReportedByYourself": "This player has already been {green}reported by yourself!",
+  "ReasonToKick": "You have been kicked due to{green}reported by yourself!",
+  "ReasonToBan": "This player has already been {green}reported by yourself!",
   "CustomReason": "Type the reason for the report",
   "Embed.Title": "Report",
   "Embed.Player": "Player",

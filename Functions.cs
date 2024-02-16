@@ -60,20 +60,21 @@ public partial class CallAdmin
   private void HandleSentToDiscordAsync(CCSPlayerController player, CCSPlayerController target, string reason)
   {
     string? hostName = ConVar.Find("hostname")?.StringValue;
-    dynamic infos = new
+    ReportInfos infos = new()
     {
-      playerName = player.PlayerName,
-      playerSteamId = player.SteamID.ToString(),
-      targetName = target.PlayerName,
-      targetSteamId = target.SteamID.ToString(),
-      mapName = Server.MapName
+      PlayerName = player.PlayerName,
+      PlayerSteamId = player.SteamID.ToString(),
+      TargetName = target.PlayerName,
+      TargetSteamId = target.SteamID.ToString(),
+      TargetUserid = target.UserId,
+      MapName = Server.MapName
     };
 
     if (Config.Commands.CanReportPlayerAlreadyReported >= 1)
     {
       Task.Run(async () =>
       {
-        var result = await FindReportedPlayer(infos.playerSteamId, infos.targetSteamid, infos.reason);
+        var result = await FindReportedPlayer(infos.PlayerSteamId, infos.TargetSteamId, reason);
 
         if (!string.IsNullOrEmpty(result) || result != "skip")
         {
@@ -109,9 +110,8 @@ public partial class CallAdmin
     Task.Run(async () =>
     {
 
-      string result = await SendMessageToDiscord(Payload(infos.playerName, infos.playerSteamId, infos.targetName,
-                infos.targetSteamId, hostName, infos.mapName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier));
-
+      string result = await SendMessageToDiscord(Payload(infos.PlayerName, infos.PlayerSteamId, infos.TargetName,
+                infos.TargetSteamId, hostName, infos.MapName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier));
       if (!result.All(char.IsDigit))
       {
         Server.NextFrame(() =>
@@ -122,25 +122,57 @@ public partial class CallAdmin
         return;
       }
       Server.NextFrame(() =>
-       {
-         player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportSent"]}");
-       });
-
-
+      {
+        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportSent"]}");
+      });
       if (!Config.Commands.ReportHandledEnabled) return;
 
-      bool resultQuery = await InsertIntoDatabase(infos.playerName, infos.playerSteamId, infos.targetName,
-                 infos.targetSteamId, reason, result, identifier, hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort);
-
+      bool resultQuery = await InsertIntoDatabase(infos.PlayerName, infos.PlayerSteamId, infos.TargetName,
+                 infos.TargetSteamId, reason, result, identifier, hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort);
       if (!resultQuery)
       {
         Console.WriteLine($"{Localizer["Prefix"]} {Localizer["InsertIntoDatabaseError"]}");
-        return;
+      }
+
+      if (Config.Commands.HowShouldBeChecked == -1 || Config.Commands.ActionToDoWhenMaximumLimitReached <= 0) return;
+
+      ReportedPlayersClass? findReportedPlayer = ReportedPlayers.Find(rp => rp.Player == infos.TargetSteamId);
+
+
+      if (findReportedPlayer != null)
+        findReportedPlayer.Reports += 1;
+      else
+      {
+        ReportedPlayers.Add(new ReportedPlayersClass
+        {
+          Player = infos.TargetSteamId,
+          Reports = 1,
+          FirstReport = DateTime.UtcNow
+        });
+        findReportedPlayer = ReportedPlayers.Find(rp => rp.Player == infos.TargetSteamId);
+      }
+      if (findReportedPlayer?.Reports >= Config.Commands.MaximumReportsPlayerCanReceiveBeforeAction)
+      {
+        if (Config.Commands.HowShouldBeChecked == 0 || (Config.Commands.HowShouldBeChecked >= 1 && findReportedPlayer.FirstReport.AddMinutes(Config.Commands.HowShouldBeChecked) >= DateTime.UtcNow))
+        {
+          Server.NextFrame(() =>
+          {
+            if (Config.Commands.ActionToDoWhenMaximumLimitReached == 1)
+            {
+              Server.ExecuteCommand($"css_kick #{infos.TargetUserid} {Localizer["ReasonToKick"].Value}");
+            }
+            else if (Config.Commands.ActionToDoWhenMaximumLimitReached == 2)
+            {
+              Server.ExecuteCommand($"css_ban #{infos.TargetUserid} {Config.Commands.IfActionIsBanThenBanForHowManyMinutes} {Localizer["ReasonToBan"].Value}");
+            }
+          });
+        }
+        ReportedPlayers.RemoveAll(p => p.Player == infos.TargetSteamId);
       }
     });
   }
 
-  public string Payload(string clientName, string clientSteamId, string targetName, string targetSteamId, string hostName, string mapName, string hostIp, string msg, string identifier, bool? canceled = false, string? adminName = null, string? adminSteamId = null)
+  public string Payload(string clientName, string clientSteamId, string TargetName, string TargetSteamId, string hostName, string MapName, string hostIp, string msg, string identifier, bool? canceled = false, string? adminName = null, string? adminSteamId = null)
   {
     string content = Localizer["Embed.ContentReport", Config.Commands.ReportHandledPrefix, identifier].Value;
 
@@ -148,7 +180,6 @@ public partial class CallAdmin
     {
       content = "\u200B";
     }
-
 
     var Payload = new
     {
@@ -173,7 +204,7 @@ public partial class CallAdmin
                                {
                                    name = Localizer["Embed.Suspect"].Value,
                                    value =
-                                       $"**{Localizer["Embed.SuspectName"]}:** {targetName}\n**{Localizer["Embed.SuspectSteamid"]}:** [{new SteamID(ulong.Parse(targetSteamId)).SteamId2}](https://steamcommunity.com/profiles/{targetSteamId}/)",
+                                       $"**{Localizer["Embed.SuspectName"]}:** {TargetName}\n**{Localizer["Embed.SuspectSteamid"]}:** [{new SteamID(ulong.Parse(TargetSteamId)).SteamId2}](https://steamcommunity.com/profiles/{TargetSteamId}/)",
                                    inline = true
                                },
                                new
@@ -197,7 +228,7 @@ public partial class CallAdmin
                                new
                                {
                                    name = Localizer["Embed.Map"].Value,
-                                   value = mapName,
+                                   value = MapName,
                                    inline = true
                                }
                            }

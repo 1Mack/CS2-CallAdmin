@@ -30,7 +30,7 @@ namespace CallAdmin
   }
   public class CallAdminConfig : BasePluginConfig
   {
-    public override int Version { get; set; } = 8;
+    public override int Version { get; set; } = 9;
     [JsonPropertyName("ServerIpWithPort")]
     public string ServerIpWithPort { get; set; } = "";
     [JsonPropertyName("CooldownRefreshCommandSeconds")]
@@ -102,7 +102,15 @@ namespace CallAdmin
     [JsonPropertyName("ReportCancelByStaffMaxTimeMinutes")]
     public double ReportCancelByStaffMaxTimeMinutes { get; set; } = 5.0;
     [JsonPropertyName("ReportCancelByStaffDeleteOrEditEmbed")]
-    public bool ReportCancelByStaffDeleteOrEditEmbed { get; set; } = true;
+    public int ReportCancelByStaffDeleteOrEditEmbed { get; set; } = 1;
+    [JsonPropertyName("MaximumReportsPlayerCanReceiveBeforeAction")]
+    public int MaximumReportsPlayerCanReceiveBeforeAction { get; set; } = 4;
+    [JsonPropertyName("ActionToDoWhenMaximumLimitReached")]
+    public int ActionToDoWhenMaximumLimitReached { get; set; } = 0;
+    [JsonPropertyName("IfActionIsBanThenBanForHowManyMinutes")]
+    public int IfActionIsBanThenBanForHowManyMinutes { get; set; } = 10;
+    [JsonPropertyName("HowShouldBeChecked")]
+    public int HowShouldBeChecked { get; set; } = 0;
   }
   public class Embed
   {

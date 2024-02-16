@@ -15,7 +15,7 @@ public partial class CallAdmin
 
     Task.Run(async () =>
     {
-      var query = await GetReportDatabase(null, playerSteamid, Config.Commands.ReportCancelByStaffMaxTimeMinutes);
+      var query = await GetReportDatabase(null, playerSteamid, Config.Commands.ReportCancelByOwnerMaxTimeMinutes);
 
       if (query == null)
       {
