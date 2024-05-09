@@ -11,28 +11,28 @@ public partial class CallAdmin
   {
     if (player == null || !player.IsValid || player.IsBot) return;
 
-    if (!string.IsNullOrEmpty(Config.Commands.ReportPermission) && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportPermission.Split(";")))
+    if (Config.Commands.ReportPermission.Length > 0 && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportPermission))
     {
       command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["MissingCommandPermission"]}");
       return;
     }
     if (CanExecuteCommand(player.Slot))
     {
-      ChatMenu reportMenu = new(Localizer["ChatMenu.PlayersTitle"]);
+      var getPlayers = Utilities.GetPlayers().Where(p => p != null && !p.IsBot && !p.IsHLTV && p.AuthorizedSteamID != null && !Config.Debug ? p.Index != player.Index : true);
 
-      foreach (var playerOnServer in Utilities.GetPlayers().Where(p => p != null && !p.IsBot && !p.IsHLTV && p.AuthorizedSteamID != null))
-      {
-        if (!Config.Debug && playerOnServer.Index == player.Index) continue;
-
-        reportMenu.AddMenuOption($"{playerOnServer.PlayerName} [{playerOnServer.Index}]", HandleMenu);
-      }
-
-      if (reportMenu.MenuOptions.Count == 0)
+      if (!getPlayers.Any())
       {
         command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["NoPlayersAvailable"]}");
         return;
       }
-      ChatMenus.OpenMenu(player, reportMenu);
+
+      Menu(
+        Localizer["Menu.PlayersTitle"],
+        player,
+        HandleMenu,
+        getPlayers.Select(p => $"{p.PlayerName} [{p.Index}]").ToList()
+      );
+
       return;
     }
 
@@ -43,59 +43,65 @@ public partial class CallAdmin
   private void HandleMenu(CCSPlayerController player, ChatMenuOption option)
   {
     var parts = option.Text.Split('[', ']');
-    var lastPart = parts[parts.Length - 2];
+    var lastPart = parts[^2];
     var numbersOnly = string.Join("", lastPart.Where(char.IsDigit));
 
     var index = int.Parse(numbersOnly.Trim());
 
-    var reasons = Config.Reasons.Split(";");
-    var reasonMenu = new ChatMenu(Localizer["ChatMenu.ReasonsTitle"]);
-    reasonMenu.MenuOptions.Clear();
-    for (int i = 0; i < reasons.Length; i++)
-    {
+    List<string> reasonsMenu = [];
 
+    for (int i = 0; i < Config.Reasons.Length; i++)
+    {
       string reasonLang = Localizer[$"Reason_{i + 1}"].Value;
 
       if (reasonLang == $"Reason_{i + 1}")
       {
-        reasonLang = reasons[i].Replace("{CUSTOMREASON}", "");
+        reasonLang = Config.Reasons[i].Replace("{CUSTOMREASON}", "");
       }
+      reasonsMenu.Add($"{reasonLang} [{index}{(Config.Reasons[i].Contains("{CUSTOMREASON}") == true ? "-c" : "")}]");
+    }
 
-      reasonMenu.AddMenuOption($"{reasonLang} [{index}{(reasons[i].Contains("{CUSTOMREASON}") == true ? "-c" : "")}]", (player, option) =>
+    Menu(
+       Localizer["Menu.ReasonsTitle"],
+       player,
+       HandleMenu,
+       reasonsMenu,
+       true
+     );
+
+    void HandleMenu(CCSPlayerController player, ChatMenuOption option)
+    {
+      var parts = option.Text.Split('[', ']');
+      var lastPart = parts[^2];
+
+      if (lastPart.Contains("-c"))
       {
-        var parts = option.Text.Split('[', ']');
-        var lastPart = parts[^2];
-
-        if (lastPart.Contains("-c"))
+        var findPlayer = CustomMessagePlayers.Find(obj => obj.Player == (int)player.Index);
+        if (findPlayer == null)
         {
-          var findPlayer = CustomMessagePlayers.Find(obj => obj.Player == (int)player.Index);
-          if (findPlayer == null)
+          CustomMessagePlayers.Add(new CustomMessagePlayersClass
           {
-            CustomMessagePlayers.Add(new CustomMessagePlayersClass
-            {
-              HandleMessage = true,
-              Player = (int)player.Index,
-              Target = int.Parse(lastPart.Replace("-c", "").Trim())
+            HandleMessage = true,
+            Player = (int)player.Index,
+            Target = int.Parse(lastPart.Replace("-c", "").Trim())
 
-            });
-          }
-          else
-          {
-            findPlayer.HandleMessage = true;
-            findPlayer.Target = int.Parse(lastPart.Replace("-c", "").Trim());
-          }
-          player.PrintToChat($"{Localizer["Prefix"]} {Localizer["CustomReason"]}");
-          return;
+          });
         }
         else
         {
-          var target = Utilities.GetPlayerFromIndex(int.Parse(lastPart.Replace("-c", "").Trim()));
-
-          HandleSentToDiscordAsync(player, target, parts[0]);
+          findPlayer.HandleMessage = true;
+          findPlayer.Target = int.Parse(lastPart.Replace("-c", "").Trim());
         }
-      });
-    }
+        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["CustomReason"]}");
+        return;
+      }
+      else
+      {
+        var target = Utilities.GetPlayerFromIndex(int.Parse(lastPart.Replace("-c", "").Trim()));
 
-    ChatMenus.OpenMenu(player, reasonMenu);
+        HandleSentToDiscordAsync(player, target!, parts[0]);
+
+      }
+    }
   }
 }

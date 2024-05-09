@@ -25,6 +25,6 @@
   "Embed.Map": "Karte",
   "Embed.ContentReport": "**!{0} {1}** Lai spēlē atzīmētu sūdzību kā atrisinātu. -> Tu vari rakstīt šeit jebko vai atstāt tukšu. Iepingo lietotāju šādi: <@MemberId> vai role: <@&RoleId>",
   "Embed.ContentReportHandled": "Apstrādāja {0}",
-  "ChatMenu.ReasonsTitle": "[{green}REPORT{default}] Izvēlies iemeslu",
-  "ChatMenu.PlayersTitle": "[{green}REPORT{default}] Izvēlies spēlētāju"
+  "Menu.ReasonsTitle": "[{green}REPORT{default}] Izvēlies iemeslu",
+  "Menu.PlayersTitle": "[{green}REPORT{default}] Izvēlies spēlētāju"
 }

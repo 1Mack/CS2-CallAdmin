@@ -22,4 +22,16 @@ public partial class CallAdmin
     public required int? TargetUserid { get; set; }
     public required string MapName { get; set; }
   }
+  public class DatabaseReportClass
+  {
+    public required string victim_name { get; set; }
+    public required string victim_steamid { get; set; }
+    public required string suspect_name { get; set; }
+    public required string suspect_steamid { get; set; }
+    public required string host_name { get; set; }
+    public required string host_ip { get; set; }
+    public required string reason { get; set; }
+    public required string identifier { get; set; }
+    public required string message_id { get; set; }
+  }
 }

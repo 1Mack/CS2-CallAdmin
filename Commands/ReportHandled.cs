@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
+using Microsoft.Extensions.Logging;
 
 namespace CallAdmin;
 public partial class CallAdmin
@@ -13,7 +14,7 @@ public partial class CallAdmin
 
 
 
-    if (!string.IsNullOrEmpty(Config.Commands.ReportHandledPermission) && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportHandledPermission.Split(";").Select(space => space.Trim()).ToArray()))
+    if (Config.Commands.ReportHandledPermission.Length > 0 && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportHandledPermission))
     {
       command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["MissingCommandPermission"]}");
       return;
@@ -26,51 +27,51 @@ public partial class CallAdmin
       string playerSteamid = player.SteamID.ToString();
       string mapName = Server.MapName;
 
-      Task.Run(async () =>
+      Task<DatabaseReportClass?> task1 = Task.Run(() => GetReportDatabase(identifier, null, Config.Commands.ReportHandledMaxTimeMinutes));
+      task1.Wait();
+
+      if (task1.Result == null)
       {
-        var query = await GetReportDatabase(identifier, null, Config.Commands.ReportHandledMaxTimeMinutes);
+        command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["ReportNotFound"]}");
+        return;
+      }
 
-        if (query == null)
-        {
-          Server.NextFrame(() =>
-          {
-            command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["ReportNotFound"]}");
-          });
-          return;
-        }
+      Task<string> task2 = Task.Run(() =>
+        SendMessageToDiscord(
+          Payload(
+            task1.Result.victim_name,
+            task1.Result.victim_steamid,
+            task1.Result.suspect_name,
+            task1.Result.suspect_steamid,
+            task1.Result.host_name,
+            mapName,
+            task1.Result.host_ip,
+            task1.Result.reason,
+            task1.Result.identifier,
+            false,
+            playerName,
+            playerSteamid
+          ),
+          task1.Result.message_id
+        )
+      );
+      task2.Wait();
 
-        string result = await SendMessageToDiscord(Payload(query.victim_name, query.victim_steamid, query.suspect_name,
-            query.suspect_steamid, query.host_name, mapName, query.host_ip, query.reason, identifier, false, playerName, playerSteamid), query.message_id);
+      if (!task2.Result.All(char.IsDigit))
+      {
+        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
+        Logger.LogError(task2.Result);
+        return;
+      }
 
-        if (!result.All(char.IsDigit))
-        {
-          Server.NextFrame(() =>
-          {
-            player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
-          });
-          Console.WriteLine(result);
-          return;
-        }
+      Task<bool> task3 = Task.Run(() => UpdateReportHandleDatabase(identifier, playerName, playerSteamid));
 
-        bool executeResult = await UpdateReportHandleDatabase(identifier, playerName, playerSteamid);
+      task3.Wait();
 
-
-
-        if (!executeResult)
-        {
-          Server.NextFrame(() =>
-          {
-            player.PrintToChat($"{Localizer["Prefix"]} {Localizer["MarkedAsHandledButNotInDatabase"]}");
-          });
-
-        }
-        Server.NextFrame(() =>
-        {
-          player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportMarkedAsHandled"]}");
-        });
-      });
-
-
+      if (!task3.Result)
+        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["MarkedAsHandledButNotInDatabase"]}");
+      else
+        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportMarkedAsHandled"]}");
     }
     else command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["InCoolDown", Config.CooldownRefreshCommandSeconds]}");
   }

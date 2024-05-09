@@ -1,11 +1,11 @@
 using System.Net;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities;
+using CounterStrikeSharp.API.Modules.Menu;
 
 namespace CallAdmin;
 public partial class CallAdmin
@@ -39,13 +39,13 @@ public partial class CallAdmin
   {
     public required string id { get; set; }
   }
-  public bool DeleteMessageOnDiscord(string messageId)
+  public async Task<bool> DeleteMessageOnDiscord(string messageId)
   {
     try
     {
       var httpClient = new HttpClient();
 
-      var result = httpClient.DeleteAsync($"{Config.WebHookUrl}/messages/{messageId}").Result;
+      var result = await httpClient.DeleteAsync($"{Config.WebHookUrl}/messages/{messageId}");
 
       return result.StatusCode == HttpStatusCode.NoContent;
 
@@ -72,24 +72,19 @@ public partial class CallAdmin
 
     if (Config.Commands.CanReportPlayerAlreadyReported >= 1)
     {
-      Task.Run(async () =>
-      {
-        var result = await FindReportedPlayer(infos.PlayerSteamId, infos.TargetSteamId, reason);
+      Task<dynamic?> task1 = Task.Run(() => FindReportedPlayer(infos.PlayerSteamId, infos.TargetSteamId, reason));
+      task1.Wait();
 
-        if (!string.IsNullOrEmpty(result) || result != "skip")
-        {
-          Server.NextFrame(() =>
-          {
-            if (result == "erro")
-              player.PrintToChat($"{Localizer["Prefix"]} {Localizer["InternalServerError"]}");
-            else if (result == 1 || result == 4)
-              player.PrintToChat($"{Localizer["Prefix"]} {Localizer["PlayerAlreadyReportedByYourself"]}");
-            else if (result == 2 || result == 3)
-              player.PrintToChat($"{Localizer["Prefix"]} {Localizer["PlayerAlreadyReported"]}");
-          });
-          return;
-        }
-      });
+      if (!string.IsNullOrEmpty(task1.Result) || task1.Result != "skip")
+      {
+        if (task1.Result == "erro")
+          player.PrintToChat($"{Localizer["Prefix"]} {Localizer["InternalServerError"]}");
+        else if (task1.Result == 1 || task1.Result == 4)
+          player.PrintToChat($"{Localizer["Prefix"]} {Localizer["PlayerAlreadyReportedByYourself"]}");
+        else if (task1.Result == 2 || task1.Result == 3)
+          player.PrintToChat($"{Localizer["Prefix"]} {Localizer["PlayerAlreadyReported"]}");
+        return;
+      }
     }
 
     if (string.IsNullOrEmpty(hostName))
@@ -107,69 +102,85 @@ public partial class CallAdmin
 
     string identifier = RandomString(15);
 
-    Task.Run(async () =>
+    Task<string> task2 = Task.Run(() =>
+      SendMessageToDiscord(
+        Payload(
+          infos.PlayerName,
+          infos.PlayerSteamId,
+          infos.TargetName,
+          infos.TargetSteamId,
+          hostName,
+          infos.MapName,
+          string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier
+        )
+      )
+    );
+
+    task2.Wait();
+
+    if (!task2.Result.All(char.IsDigit))
     {
+      player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
+      return;
+    }
 
-      string result = await SendMessageToDiscord(Payload(infos.PlayerName, infos.PlayerSteamId, infos.TargetName,
-                infos.TargetSteamId, hostName, infos.MapName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier));
-      if (!result.All(char.IsDigit))
-      {
-        Server.NextFrame(() =>
-        {
-          player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
-        });
+    player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportSent"]}");
 
-        return;
-      }
-      Server.NextFrame(() =>
+    if (!Config.Commands.ReportHandledEnabled) return;
+
+    Task<bool> task3 = Task.Run(() =>
+      InsertIntoDatabase(
+        infos.PlayerName,
+        infos.PlayerSteamId,
+        infos.TargetName,
+        infos.TargetSteamId,
+        reason,
+        task2.Result,
+        identifier,
+        hostName,
+        string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort
+      )
+    );
+    task3.Wait();
+
+    if (!task3.Result)
+    {
+      Console.WriteLine($"{Localizer["Prefix"]} {Localizer["InsertIntoDatabaseError"]}");
+    }
+
+    if (Config.Commands.HowShouldBeChecked == -1 || Config.Commands.ActionToDoWhenMaximumLimitReached <= 0) return;
+
+    ReportedPlayersClass? findReportedPlayer = ReportedPlayers.Find(rp => rp.Player == infos.TargetSteamId);
+
+
+    if (findReportedPlayer != null)
+      findReportedPlayer.Reports += 1;
+    else
+    {
+      ReportedPlayers.Add(new ReportedPlayersClass
       {
-        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportSent"]}");
+        Player = infos.TargetSteamId,
+        Reports = 1,
+        FirstReport = DateTime.UtcNow
       });
-      if (!Config.Commands.ReportHandledEnabled) return;
-
-      bool resultQuery = await InsertIntoDatabase(infos.PlayerName, infos.PlayerSteamId, infos.TargetName,
-                 infos.TargetSteamId, reason, result, identifier, hostName, string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort);
-      if (!resultQuery)
+      findReportedPlayer = ReportedPlayers.Find(rp => rp.Player == infos.TargetSteamId);
+    }
+    if (findReportedPlayer?.Reports >= Config.Commands.MaximumReportsPlayerCanReceiveBeforeAction)
+    {
+      if (Config.Commands.HowShouldBeChecked == 0 || (Config.Commands.HowShouldBeChecked >= 1 && findReportedPlayer.FirstReport.AddMinutes(Config.Commands.HowShouldBeChecked) >= DateTime.UtcNow))
       {
-        Console.WriteLine($"{Localizer["Prefix"]} {Localizer["InsertIntoDatabaseError"]}");
-      }
 
-      if (Config.Commands.HowShouldBeChecked == -1 || Config.Commands.ActionToDoWhenMaximumLimitReached <= 0) return;
-
-      ReportedPlayersClass? findReportedPlayer = ReportedPlayers.Find(rp => rp.Player == infos.TargetSteamId);
-
-
-      if (findReportedPlayer != null)
-        findReportedPlayer.Reports += 1;
-      else
-      {
-        ReportedPlayers.Add(new ReportedPlayersClass
+        if (Config.Commands.ActionToDoWhenMaximumLimitReached == 1)
         {
-          Player = infos.TargetSteamId,
-          Reports = 1,
-          FirstReport = DateTime.UtcNow
-        });
-        findReportedPlayer = ReportedPlayers.Find(rp => rp.Player == infos.TargetSteamId);
-      }
-      if (findReportedPlayer?.Reports >= Config.Commands.MaximumReportsPlayerCanReceiveBeforeAction)
-      {
-        if (Config.Commands.HowShouldBeChecked == 0 || (Config.Commands.HowShouldBeChecked >= 1 && findReportedPlayer.FirstReport.AddMinutes(Config.Commands.HowShouldBeChecked) >= DateTime.UtcNow))
-        {
-          Server.NextFrame(() =>
-          {
-            if (Config.Commands.ActionToDoWhenMaximumLimitReached == 1)
-            {
-              Server.ExecuteCommand($"css_kick #{infos.TargetUserid} {Localizer["ReasonToKick"].Value}");
-            }
-            else if (Config.Commands.ActionToDoWhenMaximumLimitReached == 2)
-            {
-              Server.ExecuteCommand($"css_ban #{infos.TargetUserid} {Config.Commands.IfActionIsBanThenBanForHowManyMinutes} {Localizer["ReasonToBan"].Value}");
-            }
-          });
+          Server.ExecuteCommand($"css_kick #{infos.TargetUserid} {Localizer["ReasonToKick"].Value}");
         }
-        ReportedPlayers.RemoveAll(p => p.Player == infos.TargetSteamId);
+        else if (Config.Commands.ActionToDoWhenMaximumLimitReached == 2)
+        {
+          Server.ExecuteCommand($"css_ban #{infos.TargetUserid} {Config.Commands.IfActionIsBanThenBanForHowManyMinutes} {Localizer["ReasonToBan"].Value}");
+        }
       }
-    });
+      ReportedPlayers.RemoveAll(p => p.Player == infos.TargetSteamId);
+    }
   }
 
   public string Payload(string clientName, string clientSteamId, string TargetName, string TargetSteamId, string hostName, string MapName, string hostIp, string msg, string identifier, bool? canceled = false, string? adminName = null, string? adminSteamId = null)
@@ -286,11 +297,11 @@ public partial class CallAdmin
   }
   public bool CanExecuteCommand(int playerSlot)
   {
-    if (commandCooldown.ContainsKey(playerSlot))
+    if (commandCooldown.TryGetValue(playerSlot, out DateTime value))
     {
-      if (DateTime.UtcNow >= commandCooldown[playerSlot])
+      if (DateTime.UtcNow >= value)
       {
-        commandCooldown[playerSlot] = commandCooldown[playerSlot].AddSeconds(Config.CooldownRefreshCommandSeconds);
+        commandCooldown[playerSlot] = value.AddSeconds(Config.CooldownRefreshCommandSeconds);
         return true;
       }
       else
@@ -302,6 +313,32 @@ public partial class CallAdmin
     {
       commandCooldown.Add(playerSlot, DateTime.UtcNow.AddSeconds(Config.CooldownRefreshCommandSeconds));
       return true;
+    }
+  }
+  public void Menu(string title, CCSPlayerController player, Action<CCSPlayerController, ChatMenuOption> handleMenu, List<string> list, bool? closeMenu = false)
+  {
+    if (Config.UseCenterHtmlMenu)
+    {
+      CenterHtmlMenu menu = new(title, this);
+
+      list.ForEach(item => menu.AddMenuOption(item, handleMenu));
+
+      if (closeMenu == true) menu.PostSelectAction = PostSelectAction.Close;
+
+
+      MenuManager.OpenCenterHtmlMenu(this, player, menu);
+
+
+    }
+    else
+    {
+      ChatMenu menu = new(title);
+
+      list.ForEach(item => menu.AddMenuOption(item, handleMenu));
+
+      if (closeMenu == true) menu.PostSelectAction = PostSelectAction.Close;
+
+      MenuManager.OpenChatMenu(player, menu);
     }
   }
 }

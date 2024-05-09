@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
+using Microsoft.Extensions.Logging;
 
 namespace CallAdmin;
 public partial class CallAdmin
@@ -11,7 +12,7 @@ public partial class CallAdmin
   {
     if (player == null || !player.IsValid || player.IsBot || !Config.Commands.ReportCancelByStaffEnabled) return;
 
-    if (!string.IsNullOrEmpty(Config.Commands.ReportCancelByStaffPermission) && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportCancelByStaffPermission.Split(";").Select(space => space.Trim()).ToArray()))
+    if (Config.Commands.ReportCancelByStaffPermission.Length > 0 && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportCancelByStaffPermission))
     {
       command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["MissingCommandPermission"]}");
       return;
@@ -23,58 +24,67 @@ public partial class CallAdmin
       string playerSteamid = player.SteamID.ToString();
       string mapName = Server.MapName;
 
-      Task.Run(async () =>
-      {
-        var query = await GetReportDatabase(null, playerSteamid, Config.Commands.ReportCancelByStaffMaxTimeMinutes);
+      Task<DatabaseReportClass?> task1 = Task.Run(() => GetReportDatabase(null, playerSteamid, Config.Commands.ReportCancelByOwnerMaxTimeMinutes));
+      task1.Wait();
 
-        if (query == null)
+      if (task1.Result == null)
+      {
+        command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["ReportNotFound"]}");
+        return;
+      }
+
+      if (Config.Commands.ReportCancelByStaffDeleteOrEditEmbed == 1)
+      {
+        Task<bool> task2 = Task.Run(() => DeleteMessageOnDiscord(task1.Result.message_id));
+
+        task2.Wait();
+
+        if (!task2.Result)
         {
-          Server.NextFrame(() =>
-          {
-            command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["ReportNotFound"]}");
-          });
+          player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
           return;
         }
+      }
+      else
+      {
+        Task<string> task3 = Task.Run(() =>
+        SendMessageToDiscord(
+          Payload(
+            task1.Result.victim_name,
+            task1.Result.victim_steamid,
+            task1.Result.suspect_name,
+            task1.Result.suspect_steamid,
+            task1.Result.host_name,
+            mapName,
+            task1.Result.host_ip,
+            task1.Result.reason,
+            task1.Result.identifier,
+            true,
+            playerName,
+            playerSteamid
+          ),
+          task1.Result.message_id
+        )
+      );
+        task3.Wait();
 
-        if (Config.Commands.ReportCancelByStaffDeleteOrEditEmbed == 1)
+        if (!task3.Result.All(char.IsDigit))
         {
-          bool deleteResult = await DeleteMessageOnDiscord(query.message_id);
-
-          if (!deleteResult)
-          {
-            Server.NextFrame(() =>
-            {
-              player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
-            });
-            return;
-          }
+          player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
+          Logger.LogError(task3.Result);
+          return;
         }
-        else
-        {
-          string result = await SendMessageToDiscord(Payload(query.victim_name, query.victim_steamid, query.suspect_name,
-                     query.suspect_steamid, query.host_name, mapName, query.host_ip, query.reason, query.identifier, true, playerName, playerSteamid), query.message_id);
+      }
 
-          if (!result.All(char.IsDigit))
-          {
-            Server.NextFrame(() =>
-            {
-              player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
-            });
-            Console.WriteLine(result);
-            return;
-          }
-        }
+      Task<bool> task4 = Task.Run(() => UpdateReportDeletedDatabase(task1.Result.identifier, playerName, playerSteamid, true));
 
-        bool executeResult = await UpdateReportDeletedDatabase(query.identifier, playerName, playerSteamid, true);
+      task4.Wait();
 
-        Server.NextFrame(() =>
-        {
-          if (!executeResult)
-            player.PrintToChat($"{Localizer["Prefix"]} {Localizer["MarkedAsDeletedButNotInDatabase"]}");
-          else
-            player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportMarkedAsDeleted"]}");
-        });
-      });
+      if (!task4.Result)
+        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["MarkedAsDeletedButNotInDatabase"]}");
+      else
+        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportMarkedAsDeleted"]}");
+
     }
     else command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["InCoolDown", Config.CooldownRefreshCommandSeconds]}");
   }

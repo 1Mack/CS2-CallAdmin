@@ -102,7 +102,7 @@ You can choose a translation on the core.json of counterstrikesharp or type !lan
   "Embed.Map": "Map",
   "Embed.ContentReport": "!{0} {1}** in the game to mark this report as handled. -> You can write anything here or leave it blank. Ping a member like this: <@MemberId> or a role: <@&RoleId>",
   "Embed.ContentReportHandled": "Handled by {0}",
-  "ChatMenu.ReasonsTitle": "[{green}REPORT{default}] Choose a Reason",
-  "ChatMenu.PlayersTitle": "[{green}REPORT{default}] Choose a Player"
+  "Menu.ReasonsTitle": "[{green}REPORT{default}] Choose a Reason",
+  "Menu.PlayersTitle": "[{green}REPORT{default}] Choose a Player"
 }
 ```
