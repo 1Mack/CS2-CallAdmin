@@ -18,7 +18,10 @@ public partial class CallAdmin
     }
     if (CanExecuteCommand(player.Slot))
     {
-      var getPlayers = Utilities.GetPlayers().Where(p => p != null && !p.IsBot && !p.IsHLTV && p.AuthorizedSteamID != null && !Config.Debug ? p.Index != player.Index : true);
+      var getPlayers = Utilities.GetPlayers()
+      .Where(p => p.IsValid && p.AuthorizedSteamID != null && !Config.Debug ? p.Index != player!.Index : true)
+      .Where(p => !p.IsBot && !p.IsHLTV)
+      .Where(p => Config.Commands.ReportFlagsToIgnore.Length == 0 || !AdminManager.PlayerHasPermissions(p, Config.Commands.ReportFlagsToIgnore));
 
       if (!getPlayers.Any())
       {

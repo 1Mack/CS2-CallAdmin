@@ -73,6 +73,8 @@ public class Commands
   public string[] ReportPrefix { get; set; } = ["report", "calladmin"];
   [JsonPropertyName("ReportPermission")]
   public string[] ReportPermission { get; set; } = [];
+  [JsonPropertyName("ReportFlagsToIgnore")]
+  public string[] ReportFlagsToIgnore { get; set; } = [];
   [JsonPropertyName("ReportHandledEnabled")]
   public bool ReportHandledEnabled { get; set; } = true;
   [JsonPropertyName("ReportHandledPrefix")]

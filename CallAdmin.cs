@@ -68,10 +68,8 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
   {
     if (player == null || !player.IsValid || player.IsBot) return HookResult.Continue;
     var findPlayer = CustomMessagePlayers.Find(obj => obj.Player == (int)player.Index);
-
     if (findPlayer == null || !findPlayer.HandleMessage || findPlayer.Target == null ||
-    info.GetArg(1).StartsWith('!') || info.GetArg(1).StartsWith('/') || info.GetArg(1) == "rtv") return HookResult.Continue;
-
+    info.GetArg(1).StartsWith('!') || info.GetArg(1).StartsWith('/') || Array.Exists(Config.ReasonsToIgnore, element => element == info.GetArg(1))) return HookResult.Continue;
     var findTarget = Utilities.GetPlayerFromIndex((int)findPlayer.Target);
 
     HandleSentToDiscordAsync(player, findTarget!, info.ArgString.Replace("\"", ""));
