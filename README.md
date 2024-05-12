@@ -12,12 +12,23 @@ All reports are stored in the database. `(optional)`
 The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/configs/plugins/CallAdmin`)***
 ```
 {
-  "Version": 8,
+  "Version": 10,
   "ServerIpWithPort": "",
   "CooldownRefreshCommandSeconds": 30,
-  "Reasons": "Hack;Toxic;Camping;Your Custom Reason{CUSTOMREASON}",
+  "Reasons": [
+    "Hack",
+    "Toxic",
+    "Camping",
+    "Your Custom Reason{CUSTOMREASON}"
+  ],
+  "ReasonsToIgnore": [
+    "rtv",
+    "nominate",
+    "timeleft"
+  ],
   "WebHookUrl": "",
   "Debug": true = You can report yourself;
+  "UseCenterHtmlMenu": true,
   "Database": {
     "Host": "",
     "Port": 3306,
@@ -27,20 +38,36 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
     "Prefix": "call_admin"
   },
   "Commands": {
-    "ReportPrefix": "report;calladmin",
-    "ReportPermission": "",
+    "ReportPrefix": [
+      "report",
+      "calladmin"
+    ],
+    "ReportPermission": [],
+    "ReportFlagsToIgnore": [],
     "ReportHandledEnabled": true,
-    "ReportHandledPrefix": "report_handled;handled",
-    "ReportHandledPermission": "@css/ban",
+    "ReportHandledPrefix": [
+      "report_handled",
+      "handled"
+    ],
+    "ReportHandledPermission": [
+      "@css/ban"
+    ],
     "ReportHandledMaxTimeMinutes": 15,
     "CanReportPlayerAlreadyReported": 0 = Don't check; 1 = check victim steamid AND suspect steamid; 2 = check only suspect steamid; 3 = check suspect steamid AND reason; 4 = check victim steamid AND suspect steamid AND reason,
     "ReportCancelByOwnerEnabled": true,
-    "ReportCancelByOwnerPrefix": "abort;cancel",
+    "ReportCancelByOwnerPrefix": [
+      "abort",
+      "cancel"
+    ],
     "ReportCancelByOwnerMaxTimeMinutes": 5,
     "ReportCancelByOwnerDeleteOrEditEmbed": 1 = DELETE; 0 = EDIT,
     "ReportCancelByStaffEnabled": true,
-    "ReportCancelByStaffPrefix": "report_cancel",
-    "ReportCancelByStaffPermission": "@css/ban",
+    "ReportCancelByStaffPrefix": [
+      "report_cancel"
+    ],
+    "ReportCancelByStaffPermission": [
+      "@css/ban"
+    ],
     "ReportCancelByStaffMaxTimeMinutes": 5,
     "ReportCancelByStaffDeleteOrEditEmbed": 1 = DELETE; 0 = EDIT,
     "MaximumReportsPlayerCanReceiveBeforeAction": 0 = Disabled
@@ -59,6 +86,9 @@ The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/c
 ## Commands 
 - **`report`** - Reports a Player; **(`#css/admin` group is required for use)**
 - **`report_handled [identifier]`** - Mark a report as handled; **(`@css/generic;@css/ban` flag is required for use)**
+- **`cancel`** - Cancel a report; **(Must be the owner of the report)**
+- **`report_cancel [identifier]`** - Mark a report as canceled; **(`@css/ban` flag is required for use)**
+  
   
 > [!NOTE]
 > To add more command's name, just separete them with ";" -> report;calladmin
@@ -83,8 +113,8 @@ You can choose a translation on the core.json of counterstrikesharp or type !lan
   "ReportMarkedAsDeleted": "This report has been marked as {green}deleted!",
   "PlayerAlreadyReported": "This player has already been {green}reported!",
   "PlayerAlreadyReportedByYourself": "This player has already been {green}reported by yourself!",
-  "ReasonToKick": "You have been kicked due to{green}reported by yourself!",
-  "ReasonToBan": "This player has already been {green}reported by yourself!",
+  "ReasonToKick": "You have been kicked off the server due to too many reports",
+  "ReasonToBan": "You have been banned off the server due to too many reports",
   "CustomReason": "Type the reason for the report",
   "Embed.Title": "Report",
   "Embed.Player": "Player",
@@ -103,6 +133,10 @@ You can choose a translation on the core.json of counterstrikesharp or type !lan
   "Embed.ContentReport": "!{0} {1}** in the game to mark this report as handled. -> You can write anything here or leave it blank. Ping a member like this: <@MemberId> or a role: <@&RoleId>",
   "Embed.ContentReportHandled": "Handled by {0}",
   "Menu.ReasonsTitle": "[{green}REPORT{default}] Choose a Reason",
-  "Menu.PlayersTitle": "[{green}REPORT{default}] Choose a Player"
+  "Menu.PlayersTitle": "[{green}REPORT{default}] Choose a Player",
+  "Report_1": "Hacker",
+  "Report_2": "Toxic",
+  "Report_3": "Camping",
+  "Report_4": "Custom Reason"
 }
 ```
