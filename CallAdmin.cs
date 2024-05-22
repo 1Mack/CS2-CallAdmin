@@ -61,6 +61,24 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
     {
       ReportedPlayers.Clear();
     });
+
+    Console.WriteLine(" ");
+    Console.WriteLine(@"     _____              _        _                   _____    __  __   _____   _   _ ");
+    Console.WriteLine(@"    / ____|     /\     | |      | |          /\     |  __ \  |  \/  | |_   _| | \ | |");
+    Console.WriteLine(@"   | |         /  \    | |      | |         /  \    | |  | | | \  / |   | |   |  \| |");
+    Console.WriteLine(@"   | |        / /\ \   | |      | |        / /\ \   | |  | | | |\/| |   | |   | . ` |");
+    Console.WriteLine(@"   | |____   / ____ \  | |____  | |____   / ____ \  | |__| | | |  | |  _| |_  | |\  |");
+    Console.WriteLine(@"    \_____| /_/    \_\ |______| |______| /_/    \_\ |_____/  |_|  |_| |_____| |_| \_|");
+    Console.WriteLine(@"                                                                                     ");
+    Console.WriteLine(@"                                                                                     ");
+    Console.WriteLine("			    >> Version: " + ModuleVersion);
+    Console.WriteLine("			    >> Author: https://steamcommunity.com/id/1MaaaaaacK/");
+    Console.WriteLine("			    >> Github: https://github.com/1Mack/CS2-CallAdmin");
+    Console.WriteLine(" ");
+
+
+
+    CheckVersion();
   }
 
 

@@ -18,74 +18,70 @@ public partial class CallAdmin
       return;
     }
 
-    if (CanExecuteCommand(player.Slot))
+    if (!CanExecuteCommand(player.Slot))
     {
-      string playerName = player.PlayerName;
-      string playerSteamid = player.SteamID.ToString();
-      string mapName = Server.MapName;
+      command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["InCoolDown", Config.CooldownRefreshCommandSeconds]}");
+      return;
+    }
 
-      Task<DatabaseReportClass?> task1 = Task.Run(() => GetReportDatabase(null, playerSteamid, Config.Commands.ReportCancelByOwnerMaxTimeMinutes));
-      task1.Wait();
+    string playerName = player.PlayerName;
+    string playerSteamid = player.SteamID.ToString();
+    string mapName = Server.MapName;
 
-      if (task1.Result == null)
+    Task.Run(async () =>
+    {
+      DatabaseReportClass? getReport = await GetReportDatabase(null, playerSteamid, Config.Commands.ReportCancelByOwnerMaxTimeMinutes);
+
+      if (getReport == null)
       {
-        command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["ReportNotFound"]}");
+        SendMessageToPlayer(player, $"{Localizer["Prefix"]} {Localizer["ReportNotFound"]}");
         return;
       }
 
       if (Config.Commands.ReportCancelByStaffDeleteOrEditEmbed == 1)
       {
-        Task<bool> task2 = Task.Run(() => DeleteMessageOnDiscord(task1.Result.message_id));
+        bool deleteMessage = await DeleteMessageOnDiscord(getReport.message_id);
 
-        task2.Wait();
-
-        if (!task2.Result)
+        if (!deleteMessage)
         {
-          player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
+          SendMessageToPlayer(player, $"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
           return;
         }
       }
       else
       {
-        Task<string> task3 = Task.Run(() =>
+        string sendMessageToDiscord = await
         SendMessageToDiscord(
           Payload(
-            task1.Result.victim_name,
-            task1.Result.victim_steamid,
-            task1.Result.suspect_name,
-            task1.Result.suspect_steamid,
-            task1.Result.host_name,
+            getReport.victim_name,
+            getReport.victim_steamid,
+            getReport.suspect_name,
+            getReport.suspect_steamid,
+            getReport.host_name,
             mapName,
-            task1.Result.host_ip,
-            task1.Result.reason,
-            task1.Result.identifier,
+            getReport.host_ip,
+            getReport.reason,
+            getReport.identifier,
             true,
             playerName,
             playerSteamid
           ),
-          task1.Result.message_id
-        )
+          getReport.message_id
       );
-        task3.Wait();
 
-        if (!task3.Result.All(char.IsDigit))
+        if (!sendMessageToDiscord.All(char.IsDigit))
         {
-          player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
-          Logger.LogError(task3.Result);
+          SendMessageToPlayer(player, $"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
+          Logger.LogError(sendMessageToDiscord);
           return;
         }
       }
 
-      Task<bool> task4 = Task.Run(() => UpdateReportDeletedDatabase(task1.Result.identifier, playerName, playerSteamid, true));
+      bool updateReport = await UpdateReportDeletedDatabase(getReport.identifier, playerName, playerSteamid, true);
 
-      task4.Wait();
+      SendMessageToPlayer(player, $"{Localizer["Prefix"]} {Localizer[!updateReport ? "MarkedAsDeletedButNotInDatabase" : "ReportMarkedAsDeleted"]}");
 
-      if (!task4.Result)
-        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["MarkedAsDeletedButNotInDatabase"]}");
-      else
-        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["ReportMarkedAsDeleted"]}");
+    });
 
-    }
-    else command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["InCoolDown", Config.CooldownRefreshCommandSeconds]}");
   }
 }

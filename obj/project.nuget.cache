@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "JE+N7CBAn+micVWjT5vzqVchu3/12xGtfbvVJ0N8CI+vX/F/CdV5b1miCAP/Z47UTOFOKDp2QzONRhw2YXBHtg==",
+  "dgSpecHash": "uQBA/0tg4aSwu3WPs87Vx77J2PVn3leuCoKXAagQIxWsDa+7qP2NR65KFeRg2EBdigy6eOqa42TF0aabJCyJMg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj",
+  "projectFilePath": "c:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\marcos\\.nuget\\packages\\counterstrikesharp.api\\1.0.228\\counterstrikesharp.api.1.0.228.nupkg.sha512",
+    "C:\\Users\\marcos\\.nuget\\packages\\counterstrikesharp.api\\1.0.233\\counterstrikesharp.api.1.0.233.nupkg.sha512",
     "C:\\Users\\marcos\\.nuget\\packages\\dapper\\2.1.44\\dapper.2.1.44.nupkg.sha512",
     "C:\\Users\\marcos\\.nuget\\packages\\mcmaster.netcore.plugins\\1.4.0\\mcmaster.netcore.plugins.1.4.0.nupkg.sha512",
     "C:\\Users\\marcos\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",

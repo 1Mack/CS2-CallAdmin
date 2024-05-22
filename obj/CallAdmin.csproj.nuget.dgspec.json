@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj": {}
+    "c:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj": {}
   },
   "projects": {
-    "C:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj": {
+    "c:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj",
+        "projectUniqueName": "c:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj",
         "projectName": "CallAdmin",
-        "projectPath": "C:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj",
+        "projectPath": "c:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj",
         "packagesPath": "C:\\Users\\marcos\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\obj\\",
+        "outputPath": "c:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\marcos\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -45,7 +45,7 @@
           "dependencies": {
             "CounterStrikeSharp.API": {
               "target": "Package",
-              "version": "[1.0.228, )"
+              "version": "[1.0.233, )"
             },
             "Dapper": {
               "target": "Package",

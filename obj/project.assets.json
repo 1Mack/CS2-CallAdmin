@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net8.0": {
-      "CounterStrikeSharp.API/1.0.228": {
+      "CounterStrikeSharp.API/1.0.233": {
         "type": "package",
         "dependencies": {
           "McMaster.NETCore.Plugins": "1.4.0",
@@ -927,14 +927,14 @@
     }
   },
   "libraries": {
-    "CounterStrikeSharp.API/1.0.228": {
-      "sha512": "oJWeMCJt/uQZEOXucgugu3u+QBYBqxzONf/rHjBetIZCeqgUMilo3s10GgyRMhHBDS0nBO5POUcg6K96aTxwLg==",
+    "CounterStrikeSharp.API/1.0.233": {
+      "sha512": "s3h/hcMLzWrbAFqLUxk6Ld68J2IwUtxnHXD14zTQ7km1LCvsoI7XpxD335usNpRmsWTiZ5I+tG6PcvPBPw/2/A==",
       "type": "package",
-      "path": "counterstrikesharp.api/1.0.228",
+      "path": "counterstrikesharp.api/1.0.233",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "counterstrikesharp.api.1.0.228.nupkg.sha512",
+        "counterstrikesharp.api.1.0.233.nupkg.sha512",
         "counterstrikesharp.api.nuspec",
         "lib/net8.0/CounterStrikeSharp.API.dll",
         "lib/net8.0/CounterStrikeSharp.API.runtimeconfig.json",
@@ -2601,7 +2601,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "CounterStrikeSharp.API >= 1.0.228",
+      "CounterStrikeSharp.API >= 1.0.233",
       "Dapper >= *",
       "MySqlConnector >= *"
     ]
@@ -2612,11 +2612,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj",
+      "projectUniqueName": "c:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj",
       "projectName": "CallAdmin",
-      "projectPath": "C:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj",
+      "projectPath": "c:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\CallAdmin.csproj",
       "packagesPath": "C:\\Users\\marcos\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\obj\\",
+      "outputPath": "c:\\Users\\marcos\\Documents\\mack\\csgo\\cs2\\plugins\\CallAdmin\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\marcos\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -2650,7 +2650,7 @@
         "dependencies": {
           "CounterStrikeSharp.API": {
             "target": "Package",
-            "version": "[1.0.228, )"
+            "version": "[1.0.233, )"
           },
           "Dapper": {
             "target": "Package",
