@@ -323,6 +323,7 @@ public partial class CallAdmin
   }
   public bool CanExecuteCommand(int playerSlot)
   {
+    if (Config.CooldownRefreshCommandSeconds <= 0) return true;
     if (commandCooldown.TryGetValue(playerSlot, out DateTime value))
     {
       if (DateTime.UtcNow >= value)

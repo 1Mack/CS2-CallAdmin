@@ -18,7 +18,7 @@ public partial class CallAdmin
       return;
     }
 
-    if (CanExecuteCommand(player.Slot))
+    if (!CanExecuteCommand(player.Slot))
     {
       command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["InCoolDown", Config.CooldownRefreshCommandSeconds]}");
       return;
