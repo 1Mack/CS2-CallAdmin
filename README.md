@@ -1,6 +1,6 @@
 # CS2 CallAdmin
-Plugin for CS2 that reports a player on game and send a webhook message to discord.
-Admins can handle the report by marking it as handled. `(optional)`
+Plugin for CS2 that reports a player on game and send a webhook message to discord.<br>
+Admins can handle the report by marking it as handled. `(optional)`<br>
 All reports are stored in the database. `(optional)`
 
 ## Installation
