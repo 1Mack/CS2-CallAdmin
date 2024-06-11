@@ -11,7 +11,7 @@ public partial class CallAdmin
   {
     if (player == null || !player.IsValid || player.IsBot) return;
 
-    if (Config.Commands.ReportPermission.Length > 0 && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportPermission))
+    if (Config.Commands.Report.Permission.Length > 0 && !AdminManager.PlayerHasPermissions(player, Config.Commands.Report.Permission))
     {
       command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["MissingCommandPermission"]}");
       return;
@@ -25,7 +25,7 @@ public partial class CallAdmin
     var getPlayers = Utilities.GetPlayers()
     .Where(p => p.IsValid && p.AuthorizedSteamID != null && !Config.Debug ? p.Index != player!.Index : true)
     .Where(p => !p.IsBot && !p.IsHLTV)
-    .Where(p => Config.Commands.ReportFlagsToIgnore.Length == 0 || !AdminManager.PlayerHasPermissions(p, Config.Commands.ReportFlagsToIgnore));
+    .Where(p => Config.Commands.Report.FlagsToIgnore.Length == 0 || !AdminManager.PlayerHasPermissions(p, Config.Commands.Report.FlagsToIgnore));
 
     if (!getPlayers.Any())
     {
@@ -59,6 +59,7 @@ public partial class CallAdmin
 
       menu.Title = Localizer["Menu.ReasonsTitle"].Value;
       menu.MenuOptions.Clear();
+      
       reasonsMenu.ToList().ForEach(reason => menu.AddMenuOption(reason.Key.ToString(), (player, command) =>
       {
         menu.PostSelectAction = PostSelectAction.Close;

@@ -34,4 +34,64 @@ public partial class CallAdmin
     public required string identifier { get; set; }
     public required string message_id { get; set; }
   }
+  public class EmbedFormatClass
+  {
+    public string? content { get; set; }
+    public Embeds[] embeds { get; set; }
+    public class Embeds
+    {
+      public string? title { get; set; }
+      public string? color { get; set; }
+      public string? url { get; set; }
+      public string? description { get; set; }
+      public Thumbnail? thumbnail { get; set; }
+      public Image? image { get; set; }
+      public string? timestamp { get; set; }
+
+      public Author? author { get; set; }
+      public Footer? footer { get; set; }
+      public Fields[]? fields { get; set; }
+    }
+    public class Thumbnail
+    {
+      public string? url { get; set; }
+    }
+    public class Image
+    {
+      public string? url { get; set; }
+    }
+    public class Author
+    {
+      public string? name { get; set; }
+      public string? icon_url { get; set; }
+      public string? url { get; set; }
+    }
+    public class Footer
+    {
+      public string? text { get; set; }
+      public string? iconUrl { get; set; }
+    }
+    public class Fields
+    {
+      public string? name { get; set; }
+      public string? value { get; set; }
+      public bool? inline { get; set; }
+    }
+  }
+  public class PayloadClass
+  {
+    public required string AuthorName { get; set; }
+    public required string AuthorSteamId { get; set; }
+    public required string TargetName { get; set; }
+    public required string TargetSteamId { get; set; }
+    public required string HostName { get; set; }
+    public required string MapName { get; set; }
+    public required string HostIp { get; set; }
+    public required string Reason { get; set; }
+    public required string Identifier { get; set; }
+    public required string Type { get; set; }
+    public string? AdminName { get; set; }
+    public string? AdminSteamId { get; set; }
+  }
+
 }

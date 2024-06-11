@@ -10,9 +10,9 @@ public partial class CallAdmin
   [CommandHelper(minArgs: 1, usage: "[identifier]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
   public void ReportCancelByStaff(CCSPlayerController? player, CommandInfo command)
   {
-    if (player == null || !player.IsValid || player.IsBot || !Config.Commands.ReportCancelByStaffEnabled) return;
+    if (player == null || !player.IsValid || player.IsBot || !Config.Commands.ReportCanceled.ByStaff.Enabled) return;
 
-    if (Config.Commands.ReportCancelByStaffPermission.Length > 0 && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportCancelByStaffPermission))
+    if (Config.Commands.ReportCanceled.ByStaff.Permission.Length > 0 && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportCanceled.ByStaff.Permission))
     {
       command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["MissingCommandPermission"]}");
       return;
@@ -30,7 +30,7 @@ public partial class CallAdmin
 
     Task.Run(async () =>
     {
-      DatabaseReportClass? getReport = await GetReportDatabase(null, playerSteamid, Config.Commands.ReportCancelByOwnerMaxTimeMinutes);
+      DatabaseReportClass? getReport = await GetReportDatabase(null, playerSteamid, Config.Commands.ReportCanceled.ByStaff.MaxTimeMinutes);
 
       if (getReport == null)
       {
@@ -38,7 +38,7 @@ public partial class CallAdmin
         return;
       }
 
-      if (Config.Commands.ReportCancelByStaffDeleteOrEditEmbed == 1)
+      if (Config.Commands.ReportCanceled.ByStaff.DeleteOrEditEmbed == 1)
       {
         bool deleteMessage = await DeleteMessageOnDiscord(getReport.message_id);
 
@@ -52,19 +52,21 @@ public partial class CallAdmin
       {
         string sendMessageToDiscord = await
         SendMessageToDiscord(
-          Payload(
-            getReport.victim_name,
-            getReport.victim_steamid,
-            getReport.suspect_name,
-            getReport.suspect_steamid,
-            getReport.host_name,
-            mapName,
-            getReport.host_ip,
-            getReport.reason,
-            getReport.identifier,
-            true,
-            playerName,
-            playerSteamid
+          Payload(new()
+          {
+            AuthorName = getReport.victim_name,
+            AuthorSteamId = getReport.victim_steamid,
+            TargetName = getReport.suspect_name,
+            TargetSteamId = getReport.suspect_steamid,
+            HostName = getReport.host_name,
+            MapName = mapName,
+            HostIp = getReport.host_ip,
+            Reason = getReport.reason,
+            Identifier = getReport.identifier,
+            AdminName = playerName,
+            AdminSteamId = playerSteamid,
+            Type = "EmbedReportCanceled"
+          }
           ),
           getReport.message_id
       );

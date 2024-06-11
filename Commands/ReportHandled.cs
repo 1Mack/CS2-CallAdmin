@@ -10,9 +10,9 @@ public partial class CallAdmin
   [CommandHelper(minArgs: 1, usage: "[identifier]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
   public void ReportHandledCommand(CCSPlayerController? player, CommandInfo command)
   {
-    if (player == null || !player.IsValid || player.IsBot || !Config.Commands.ReportHandledEnabled) return;
+    if (player == null || !player.IsValid || player.IsBot || !Config.Commands.ReportHandled.Enabled) return;
 
-    if (Config.Commands.ReportHandledPermission.Length > 0 && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportHandledPermission))
+    if (Config.Commands.ReportHandled.Permission.Length > 0 && !AdminManager.PlayerHasPermissions(player, Config.Commands.ReportHandled.Permission))
     {
       command.ReplyToCommand($"{Localizer["Prefix"]} {Localizer["MissingCommandPermission"]}");
       return;
@@ -32,7 +32,7 @@ public partial class CallAdmin
     Task.Run(async () =>
     {
 
-      DatabaseReportClass? getReport = await GetReportDatabase(identifier, null, Config.Commands.ReportHandledMaxTimeMinutes);
+      DatabaseReportClass? getReport = await GetReportDatabase(identifier, null, Config.Commands.ReportHandled.MaxTimeMinutes);
 
       if (getReport == null)
       {
@@ -42,19 +42,22 @@ public partial class CallAdmin
 
       string sendMessageToDiscord = await
         SendMessageToDiscord(
-          Payload(
-            getReport.victim_name,
-            getReport.victim_steamid,
-            getReport.suspect_name,
-            getReport.suspect_steamid,
-            getReport.host_name,
-            mapName,
-            getReport.host_ip,
-            getReport.reason,
-            getReport.identifier,
-            false,
-            playerName,
-            playerSteamid
+          Payload(new()
+          {
+            AuthorName = getReport.victim_name,
+            AuthorSteamId = getReport.victim_steamid,
+            TargetName = getReport.suspect_name,
+            TargetSteamId = getReport.suspect_steamid,
+            HostName = getReport.host_name,
+            MapName = mapName,
+            HostIp = getReport.host_ip,
+            Reason = getReport.reason,
+            Identifier = getReport.identifier,
+            AdminName = playerName,
+            AdminSteamId = playerSteamid,
+            Type = "EmbedReportHandled"
+          }
+
           ),
           getReport.message_id
       );
@@ -62,14 +65,14 @@ public partial class CallAdmin
 
       if (!sendMessageToDiscord.All(char.IsDigit))
       {
-        player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}");
+        Server.NextFrame(() => player.PrintToChat($"{Localizer["Prefix"]} {Localizer["WebhookError"]}"));
         Logger.LogError(sendMessageToDiscord);
         return;
       }
 
       bool updateReport = await UpdateReportHandleDatabase(identifier, playerName, playerSteamid);
 
-      player.PrintToChat($"{Localizer["Prefix"]} {Localizer[updateReport ? "MarkedAsHandledButNotInDatabase" : "ReportMarkedAsHandled"]}");
+      Server.NextFrame(() => player.PrintToChat($"{Localizer["Prefix"]} {Localizer[updateReport ? "MarkedAsHandledButNotInDatabase" : "ReportMarkedAsHandled"]}"));
 
     });
 

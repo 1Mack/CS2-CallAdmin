@@ -1,10 +1,10 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
-using CounterStrikeSharp.API.Modules.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace CallAdmin;
@@ -14,14 +14,14 @@ public partial class CallAdmin
   {
     try
     {
+
       var httpClient = new HttpClient();
       var content = new StringContent(json, Encoding.UTF8, "application/json");
-
       var result = string.IsNullOrEmpty(messageId) ? httpClient.PostAsync($"{Config.WebHookUrl}?wait=true", content).Result : httpClient.PatchAsync($"{Config.WebHookUrl}/messages/{messageId}", content).Result;
 
       if (!result.IsSuccessStatusCode)
       {
-        Console.WriteLine(result);
+        Logger.LogError(result.Content.ToString());
         return "There was an error sending the webhook";
       }
 
@@ -31,7 +31,7 @@ public partial class CallAdmin
     }
     catch (Exception e)
     {
-      Console.WriteLine(e);
+      Logger.LogError(e.Message);
       throw;
     }
   }
@@ -52,7 +52,7 @@ public partial class CallAdmin
     }
     catch (Exception e)
     {
-      Console.WriteLine(e);
+      Logger.LogError(e.Message);
       return false;
     }
   }
@@ -69,14 +69,16 @@ public partial class CallAdmin
       TargetUserid = target.UserId,
       MapName = Server.MapName
     };
+
     Task.Run(async () =>
     {
-      if (Config.Commands.CanReportPlayerAlreadyReported >= 1)
+      if (Config.Commands.Report.CanReportPlayerAlreadyReported.Enabled)
       {
         var task1 = await FindReportedPlayer(infos.PlayerSteamId, infos.TargetSteamId, reason);
 
-        if (!string.IsNullOrEmpty(task1) || task1 != "skip")
+        if (!string.IsNullOrEmpty(task1) && task1 != "skip")
         {
+
           if (task1 == "erro")
             SendMessageToPlayer(player, $"{Localizer["Prefix"]} {Localizer["InternalServerError"]}");
           else if (task1 == 1 || task1 == 4)
@@ -86,7 +88,6 @@ public partial class CallAdmin
           return;
         }
       }
-
       if (string.IsNullOrEmpty(hostName))
       {
         hostName = "Empty";
@@ -101,16 +102,20 @@ public partial class CallAdmin
       }
 
       string identifier = RandomString(15);
-
       var task2 = await SendMessageToDiscord(
-            Payload(
-              infos.PlayerName,
-              infos.PlayerSteamId,
-              infos.TargetName,
-              infos.TargetSteamId,
-              hostName,
-              infos.MapName,
-              string.IsNullOrEmpty(Config.ServerIpWithPort) ? "Empty" : Config.ServerIpWithPort, reason, identifier
+            Payload(new()
+            {
+              AuthorName = infos.PlayerName,
+              AuthorSteamId = infos.PlayerSteamId,
+              TargetName = infos.TargetName,
+              TargetSteamId = infos.TargetSteamId,
+              HostName = hostName,
+              MapName = infos.MapName,
+              HostIp = Config.ServerIpWithPort,
+              Reason = reason,
+              Identifier = identifier,
+              Type = "EmbedReport"
+            }
             )
           );
 
@@ -121,7 +126,7 @@ public partial class CallAdmin
       }
       SendMessageToPlayer(player, $"{Localizer["Prefix"]} {Localizer["ReportSent"]}");
 
-      if (!Config.Commands.ReportHandledEnabled) return;
+      if (!Config.Commands.ReportHandled.Enabled) return;
 
       var task3 = await
         InsertIntoDatabase(
@@ -139,10 +144,10 @@ public partial class CallAdmin
 
       if (!task3)
       {
-        Console.WriteLine($"{Localizer["Prefix"]} {Localizer["InsertIntoDatabaseError"]}");
+        Logger.LogError($"{Localizer["Prefix"]} {Localizer["InsertIntoDatabaseError"]}");
       }
 
-      if (Config.Commands.HowShouldBeChecked == -1 || Config.Commands.ActionToDoWhenMaximumLimitReached <= 0) return;
+      if (Config.Commands.Report.MaximumReports.HowShouldBeChecked == -1 || Config.Commands.Report.MaximumReports.ActionToDoWhenMaximumLimitReached <= 0) return;
 
       ReportedPlayersClass? findReportedPlayer = ReportedPlayers.Find(rp => rp.Player == infos.TargetSteamId);
 
@@ -159,19 +164,19 @@ public partial class CallAdmin
         });
         findReportedPlayer = ReportedPlayers.Find(rp => rp.Player == infos.TargetSteamId);
       }
-      if (findReportedPlayer?.Reports >= Config.Commands.MaximumReportsPlayerCanReceiveBeforeAction)
+      if (findReportedPlayer?.Reports >= Config.Commands.Report.MaximumReports.PlayerCanReceiveBeforeAction)
       {
-        if (Config.Commands.HowShouldBeChecked == 0 || (Config.Commands.HowShouldBeChecked >= 1 && findReportedPlayer.FirstReport.AddMinutes(Config.Commands.HowShouldBeChecked) >= DateTime.UtcNow))
+        if (Config.Commands.Report.MaximumReports.HowShouldBeChecked == 0 || (Config.Commands.Report.MaximumReports.HowShouldBeChecked >= 1 && findReportedPlayer.FirstReport.AddMinutes(Config.Commands.Report.MaximumReports.HowShouldBeChecked) >= DateTime.UtcNow))
         {
           Server.NextFrame(() =>
           {
-            if (Config.Commands.ActionToDoWhenMaximumLimitReached == 1)
+            if (Config.Commands.Report.MaximumReports.ActionToDoWhenMaximumLimitReached == 1)
             {
               Server.ExecuteCommand($"css_kick #{infos.TargetUserid} {Localizer["ReasonToKick"].Value}");
             }
-            else if (Config.Commands.ActionToDoWhenMaximumLimitReached == 2)
+            else if (Config.Commands.Report.MaximumReports.ActionToDoWhenMaximumLimitReached == 2)
             {
-              Server.ExecuteCommand($"css_ban #{infos.TargetUserid} {Config.Commands.IfActionIsBanThenBanForHowManyMinutes} {Localizer["ReasonToBan"].Value}");
+              Server.ExecuteCommand($"css_ban #{infos.TargetUserid} {Config.Commands.Report.MaximumReports.IfActionIsBanThenBanForHowManyMinutes} {Localizer["ReasonToBan"].Value}");
             }
           });
         }
@@ -180,117 +185,141 @@ public partial class CallAdmin
     });
   }
 
-  public string Payload(string clientName, string clientSteamId, string TargetName, string TargetSteamId, string hostName, string MapName, string hostIp, string msg, string identifier, bool? canceled = false, string? adminName = null, string? adminSteamId = null)
+  public string Payload(PayloadClass payloadClass)
   {
-    string content = Localizer["Embed.ContentReport", string.Join(", ", Config.Commands.ReportHandledPrefix), identifier].Value;
+    EmbedFormatClass Payload = new();
+    EmbedFormat embedType;
+    if (payloadClass.Type == "EmbedReport")
+      embedType = Config.Embeds.EmbedReport;
+    else if (payloadClass.Type == "EmbedReportCanceled")
+      embedType = Config.Embeds.EmbedReportCanceled;
+    else
+      embedType = Config.Embeds.EmbedReportHandled;
 
-    if (string.IsNullOrEmpty(content))
+    if (!string.IsNullOrEmpty(embedType.Content)) Payload.content = ReplaceTags(embedType.Content, payloadClass);
+    if (embedType.Embeds != null)
     {
-      content = "\u200B";
-    }
+      var embeds = embedType.Embeds[0];
+      Payload.embeds = [new()];
+      if (!string.IsNullOrEmpty(embeds.Title)) Payload.embeds[0].title = ReplaceTags(embeds.Title, payloadClass);
+      if (!string.IsNullOrEmpty(embeds.Color)) Payload.embeds[0].color = embeds.Color;
+      if (!string.IsNullOrEmpty(embeds.Timestamp)) Payload.embeds[0].timestamp = embeds.Timestamp;
+      if (!string.IsNullOrEmpty(embeds.Description)) Payload.embeds[0].description = embeds.Description;
 
-    var Payload = new
-    {
-      content,
-      embeds = new[]
-                    {
-                       new
-                       {
-                           title = $"{Localizer["Embed.Title"]} - {identifier}",
-                           color = Config.Embed.ColorReport,
-                           footer= new {text=hostName},
-                           fields = new object[]
-                           {
-                               new
-                               {
-                                   name = Localizer["Embed.Player"].Value,
-                                   value =
-                                       $"**{Localizer["Embed.PlayerName"]}:** {clientName}\n**{Localizer["Embed.PlayerSteamid"]}:** [{new SteamID(ulong.Parse(clientSteamId)).SteamId2}](https://steamcommunity.com/profiles/{clientSteamId}/)",
-                                   inline = true
-                               },
-                               new
-                               {
-                                   name = Localizer["Embed.Suspect"].Value,
-                                   value =
-                                       $"**{Localizer["Embed.SuspectName"]}:** {TargetName}\n**{Localizer["Embed.SuspectSteamid"]}:** [{new SteamID(ulong.Parse(TargetSteamId)).SteamId2}](https://steamcommunity.com/profiles/{TargetSteamId}/)",
-                                   inline = true
-                               },
-                               new
-                               {
-                                   name = "\u200B",
-                                   value = "\u200B",
-                                   inline = false
-                               },
-                               new
-                               {
-                                   name = Localizer["Embed.Reason"].Value,
-                                   value = msg,
-                                   inline = true
-                               },
-                               new
-                               {
-                                   name = Localizer["Embed.Ip"].Value,
-                                   value = hostIp,
-                                   inline = true
-                               },
-                               new
-                               {
-                                   name = Localizer["Embed.Map"].Value,
-                                   value = MapName,
-                                   inline = true
-                               }
-                           }
-                       }
-                   }
-    };
-
-    if (!string.IsNullOrEmpty(adminName) && !string.IsNullOrEmpty(adminSteamId))
-    {
-
-      content = Localizer["Embed.ContentReportHandled", adminName].Value;
-
-      if (string.IsNullOrEmpty(content) || canceled == true)
+      if (embeds.Author != null) Payload.embeds[0].author = new()
       {
-        content = "\u200B";
-      }
+        icon_url = embeds.Author.Icon_url,
+        name = embeds.Author.Name,
+        url = embeds.Author.Url,
 
-      var embed = Payload.embeds[0];
-
-      Payload = new
-      {
-        content,
-        embeds = new[]
-        {
-            new
-            {
-              embed.title,
-              color = canceled == false ? Config.Embed.ColorReportHandled : Config.Embed.ColorReportCanceled,
-              embed.footer,
-              fields = new[]
-              {
-                embed.fields[0],
-                embed.fields[1],
-                embed.fields[2],
-                new
-                {
-                  name = canceled == false ? Localizer["Embed.Admin"].Value : Localizer["Embed.CanceledBy"].Value,
-                  value =
-                          $"**{Localizer["Embed.AdminName"]}:** {adminName}\n**{Localizer["Embed.AdminSteamid"]}:** [{new SteamID(ulong.Parse(adminSteamId)).SteamId2}](https://steamcommunity.com/profiles/{adminSteamId}/)",
-                  inline = true
-                },
-                embed.fields[2],
-                embed.fields[2],
-                embed.fields[3],
-                embed.fields[4],
-                embed.fields[5]
-              }
-    }
-  }
       };
 
+      if (embeds.Thumbnail != null) Payload.embeds[0].thumbnail = new()
+      {
+        url = embeds.Thumbnail.Url,
+      };
+
+      if (embeds.Image != null) Payload.embeds[0].image = new()
+      {
+        url = embeds.Image.Url,
+      };
+
+      if (embeds.Footer != null) Payload.embeds[0].footer = new()
+      {
+        iconUrl = embeds.Footer.IconUrl,
+        text = embeds.Footer.Text,
+      };
+      if (embeds.Fields != null && embeds.Fields.Length > 0)
+      {
+
+        List<EmbedFormatClass.Fields> fieldsList = [];
+        foreach (var field in embeds.Fields)
+        {
+
+          if (string.IsNullOrEmpty(field.Name) || string.IsNullOrEmpty(field.Value))
+          {
+            Logger.LogError("You must provide field name and value. Only inline is optional");
+          }
+          else
+          {
+            fieldsList.Add(new()
+            {
+              name = ReplaceTags(field.Name, payloadClass),
+              value = ReplaceTags(field.Value, payloadClass),
+              inline = field.Inline == null ? false : field.Inline
+            });
+
+          }
+        }
+        Payload.embeds[0].fields = fieldsList.ToArray();
+      }
+    }
+    return JsonSerializer.Serialize(Payload);
+  }
+  public string ReplaceTags(string message, PayloadClass payload)
+  {
+    string? replaceTag(string ocurrence)
+    {
+      ocurrence = ocurrence.Replace("{", "").Replace("}", "");
+
+
+      string[] ocurrenceSplit = ocurrence.Split("|");
+
+      return ocurrenceSplit[0].ToUpper().Trim() switch
+      {
+        "MAPNAME" => payload.MapName,
+        "HOSTNAME" => payload.HostName,
+        "SERVERIP" => payload.HostIp,
+        "AUTHORNAME" => payload.AuthorName,
+        "AUTHORSTEAMID" => payload.AuthorSteamId,
+        "AUTHORPROFILE" => "https://steamcommunity.com/profiles/" + payload.AuthorSteamId,
+        "TARGETNAME" => payload.TargetName,
+        "TARGETSTEAMID" => payload.TargetSteamId,
+        "TARGETPROFILE" => "https://steamcommunity.com/profiles/" + payload.TargetSteamId,
+        "ADMINNAME" => payload.AdminName,
+        "ADMINSTEAMID" => payload.AdminSteamId,
+        "ADMINPROFILE" => payload.TargetSteamId != "null" ? "https://steamcommunity.com/profiles/" + payload.TargetSteamId : "null",
+        "IDENTIFIER" => payload.Identifier,
+        "REASON" => payload.Reason,
+        "REPORTHANDLEDPREFIX" => string.Join(", ", Config.Commands.ReportHandled.Prefix),
+        "CURRENTTIME" => handleCurrentTime(ocurrenceSplit),
+        "LOCALIZER" => Localizer[ocurrence.Split("|")[1]],
+        _ => null,
+      };
     }
 
-    return JsonSerializer.Serialize(Payload);
+    string[] getAllTags = Regex.Matches(message, @"\{[^{}]*\}")
+                                  .Cast<Match>()
+                                  .Select(match => match.Value)
+                                  .Distinct()
+                                  .ToArray();
+
+    foreach (string occurrence in getAllTags)
+    {
+      string? toReplace = replaceTag(occurrence);
+
+      if (!string.IsNullOrEmpty(toReplace)) message = message.Replace(occurrence, toReplace);
+    }
+
+    string handleCurrentTime(string[] occurrence)
+    {
+
+
+      if (occurrence.Length == 1)
+        return DateTimeOffset.FromUnixTimeMilliseconds(long.Parse((DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000).ToString()) * 1000).ToString();
+      else if (occurrence.Length == 2)
+        return DateTimeOffset.FromUnixTimeMilliseconds(
+          long.Parse(
+            (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000).ToString()) * 1000
+            ).ToOffset(TimeSpan.FromHours(Convert.ToDouble(occurrence[1]))).ToString();
+      else
+        return DateTimeOffset.FromUnixTimeMilliseconds(
+          long.Parse
+          ((DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000).ToString()) * 1000)
+          .ToOffset(TimeSpan.FromHours(occurrence[1] == "null" ? 0 : Convert.ToDouble(occurrence[1]))).ToString(occurrence[2].Replace("}", ""));
+    }
+
+    return message;
   }
   public bool CanExecuteCommand(int playerSlot)
   {

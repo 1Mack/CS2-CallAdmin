@@ -125,28 +125,28 @@ public partial class CallAdmin
 
       await connection.OpenAsync();
 
-      double time = Config.Commands.CanReportPlayerAlreadyReportedMaxTimeMinutes;
+      double time = Config.Commands.Report.CanReportPlayerAlreadyReported.MaxTimeMinutes;
 
       string query = @$"SELECT * FROM `{Config.Database.Prefix}` WHERE TIMESTAMPDIFF(MINUTE, created_at, CURRENT_TIMESTAMP) <= @time AND";
 
       var result = "";
 
-      if (Config.Commands.CanReportPlayerAlreadyReported == 1)
+      if (Config.Commands.Report.CanReportPlayerAlreadyReported.Type == 1)
       {
         query += "`victim_steamid` = @steamid AND `suspect_steamid` = @targetSteamid";
         result = await connection.QueryFirstOrDefaultAsync(query, new { time, steamid, targetSteamid });
       }
-      else if (Config.Commands.CanReportPlayerAlreadyReported == 2)
+      else if (Config.Commands.Report.CanReportPlayerAlreadyReported.Type == 2)
       {
         query += "`suspect_steamid` = @targetSteamid";
         result = await connection.QueryFirstOrDefaultAsync(query, new { time, targetSteamid });
       }
-      else if (Config.Commands.CanReportPlayerAlreadyReported == 3)
+      else if (Config.Commands.Report.CanReportPlayerAlreadyReported.Type == 3)
       {
         query += "`suspect_steamid` = @targetSteamid AND `reason` = @reason";
         result = await connection.QueryFirstOrDefaultAsync(query, new { time, targetSteamid, reason });
       }
-      else if (Config.Commands.CanReportPlayerAlreadyReported == 4)
+      else if (Config.Commands.Report.CanReportPlayerAlreadyReported.Type == 4)
       {
         query += "`victim_steamid` = @steamid `suspect_steamid` = @targetSteamid AND `reason` = @reason";
         result = await connection.QueryFirstOrDefaultAsync(query, new { time, steamid, targetSteamid, reason });
@@ -154,7 +154,7 @@ public partial class CallAdmin
       else result = "skip";
       await connection.CloseAsync();
 
-      if (result != "skip" && !string.IsNullOrEmpty(result)) result = Config.Commands.CanReportPlayerAlreadyReported.ToString();
+      if (result != "skip" && !string.IsNullOrEmpty(result)) result = Config.Commands.Report.CanReportPlayerAlreadyReported.Type.ToString();
 
       return result;
 
