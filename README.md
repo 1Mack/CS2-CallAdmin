@@ -10,78 +10,187 @@ All reports are stored in the database. `(optional)`
 
 ## Config
 The config is created automatically. ***(Path: `csgo/addons/counterstrikesharp/configs/plugins/CallAdmin`)***
+### MAIN
 ```
-{
-  "Version": 10,
-  "ServerIpWithPort": "",
-  "CooldownRefreshCommandSeconds": 30,
-  "Reasons": [
-    "Hack",
-    "Toxic",
-    "Camping",
-    "Your Custom Reason{CUSTOMREASON}"
-  ],
-  "ReasonsToIgnore": [
-    "rtv",
-    "nominate",
-    "timeleft"
-  ],
-  "WebHookUrl": "",
-  "Debug": true = You can report yourself;
-  "UseCenterHtmlMenu": true,
-  "Database": {
-    "Host": "",
-    "Port": 3306,
-    "User": "",
-    "Password": "",
-    "Name": "",
-    "Prefix": "call_admin"
-  },
-  "Commands": {
-    "ReportPrefix": [
+"Version": 11,
+"ServerIpWithPort": "",
+"CooldownRefreshCommandSeconds": 30,
+"Reasons": [
+  "Hack",
+  "Toxic",
+  "Camping",
+  "Your Custom Reason{CUSTOMREASON}"
+],
+"ReasonsToIgnore": [
+  "rtv",
+  "nominate",
+  "timeleft"
+],
+"WebHookUrl": "",
+"Debug": true = Can report yoursef
+"UseCenterHtmlMenu": true,
+"Database": {
+  "Host": "",
+  "Port": 3306,
+  "User": "",
+  "Password": "",
+  "Name": "",
+  "Prefix": "call_admin"
+},
+"Commands": {
+  "Report": {
+    "Prefix": [
       "report",
       "calladmin"
     ],
-    "ReportPermission": [],
-    "ReportFlagsToIgnore": [],
-    "ReportHandledEnabled": true,
-    "ReportHandledPrefix": [
+    "Permission": [],
+    "FlagsToIgnore": [], // Not gonna show up on !report
+    "CanReportPlayerAlreadyReported": {
+      "Enabled": true,
+      "Type": 0 = Don't check; 1 = check victim steamid AND suspect steamid; 2 = check only suspect steamid; 3 = check suspect steamid AND reason; 4 = check victim steamid AND suspect steamid AND reason
+      "MaxTimeMinutes": 10
+    },
+    "MaximumReports": {
+      "Enabled": true,
+      "PlayerCanReceiveBeforeAction": 4,
+      "ActionToDoWhenMaximumLimitReached": 0 = Nothing; 1 = Kick; 2 = Ban
+      "IfActionIsBanThenBanForHowManyMinutes": 10; 0 = permanente
+      "HowShouldBeChecked": 0 = Default; > 0 = Check for minutes, so if a player has PlayerCanReceiveBeforeAction in HowShouldBeChecked minutes, an ActionToDoWhenMaximumLimitReached will be called
+    }
+  },
+  "ReportHandled": {
+    "Enabled": true,
+    "Prefix": [
       "report_handled",
       "handled"
     ],
-    "ReportHandledPermission": [
+    "Permission": [
       "@css/ban"
     ],
-    "ReportHandledMaxTimeMinutes": 15,
-    "CanReportPlayerAlreadyReported": 0 = Don't check; 1 = check victim steamid AND suspect steamid; 2 = check only suspect steamid; 3 = check suspect steamid AND reason; 4 = check victim steamid AND suspect steamid AND reason,
-    "ReportCancelByOwnerEnabled": true,
-    "ReportCancelByOwnerPrefix": [
-      "abort",
-      "cancel"
-    ],
-    "ReportCancelByOwnerMaxTimeMinutes": 5,
-    "ReportCancelByOwnerDeleteOrEditEmbed": 1 = DELETE; 0 = EDIT,
-    "ReportCancelByStaffEnabled": true,
-    "ReportCancelByStaffPrefix": [
-      "report_cancel"
-    ],
-    "ReportCancelByStaffPermission": [
-      "@css/ban"
-    ],
-    "ReportCancelByStaffMaxTimeMinutes": 5,
-    "ReportCancelByStaffDeleteOrEditEmbed": 1 = DELETE; 0 = EDIT,
-    "MaximumReportsPlayerCanReceiveBeforeAction": 0 = Disabled
-    "ActionToDoWhenMaximumLimitReached": 0 = Nothing; 1 = Kick; 2 = Ban
-    "IfActionIsBanThenBanForHowManyMinutes": 0 = Permanent;
-    "HowShouldBeChecked": 0 = Default; > 0 = Check for minutes, so if a player has MaximumReportsPlayerCanReceiveBeforeAction in HowShouldBeChecked minutes, an ActionToDoWhenMaximumLimitReached will be called
+    "MaxTimeMinutes": 15
   },
-  "Embed": {
-    "ColorReport": 16711680,
-    "ColorReportHandled": 65280,
-    "ColorReportCanceled": 0
-  },
-  "ConfigVersion": 8
-}
+  "ReportCanceled": {
+    "ByAuthor": {
+      "Enabled": true,
+      "Prefix": [
+        "abort",
+        "cancel"
+      ],
+      "MaxTimeMinutes": 5,
+      "DeleteOrEditEmbed": 1 = DELETE; 0 = EDIT
+    },
+    "ByStaff": {
+      "Enabled": true,
+      "Prefix": [
+        "report_cancel"
+      ],
+      "MaxTimeMinutes": 5,
+      "DeleteOrEditEmbed": 1 = DELETE; 0 = EDIT
+      "Permission": [
+        "@css/ban"
+      ]
+    }
+  }
+},
+```
+### EMBED EXAMPLE
+1. You can edit as you wish. 
+2. You can create your own Langs. To do it, just add the lang you want on the embed and on the Langs folder, just as the example below
+3. You can pass any of the follow variables: ***`"MAPNAME", "HOSTNAME", "SERVERIP", "AUTHORNAME", "AUTHORSTEAMID", "AUTHORPROFILE", "TARGETNAME", "TARGETSTEAMID", "TARGETPROFILE", "ADMINNAME", "ADMINSTEAMID", "ADMINPROFILE", "IDENTIFIER", "REASON", "REPORTHANDLEDPREFIX", "CURRENTTIME"`***
+```
+"EmbedReport": {
+      "Content": "{REPORTHANDLEDPREFIX} {Localizer|Embed.ContentReport}",
+      "Embeds": [
+        {
+          "Title": "{IDENTIFIER}",
+          "Color": "16711680",
+          "Description": "",
+          "Timestamp": "",
+          "Author": {
+            "Name": "",
+            "IconUrl": "",
+            "Url": ""
+          },
+          "Thumbnail": {
+            "Url": ""
+          },
+          "Image": {
+            "Url": ""
+          },
+          "Footer": {
+            "Text": "",
+            "IconUrl": ""
+          },
+          "Fields": [
+            {
+              "Name": "{Localizer|Embed.AuthorName}",
+              "Value": "\u0060\u0060\u0060{AUTHORNAME}\u0060\u0060\u0060",
+              "Inline": true
+            },
+            {
+              "Name": "{Localizer|Embed.AuthorSteamid}",
+              "Value": "\u0060\u0060\u0060{AUTHORSTEAMID}\u0060\u0060\u0060",
+              "Inline": true
+            },
+            {
+              "Name": "{Localizer|Embed.Profile}",
+              "Value": "[{Localizer|Embed.ClickHere}]({AUTHORPROFILE})",
+              "Inline": true
+            },
+            {
+              "Name": "-----------------------------------------------------------------------------------",
+              "Value": "\u200B",
+              "Inline": false
+            },
+            {
+              "Name": "{Localizer|Embed.TargetName}",
+              "Value": "\u0060\u0060\u0060{TARGETNAME}\u0060\u0060\u0060",
+              "Inline": true
+            },
+            {
+              "Name": "{Localizer|Embed.TargetSteamid}",
+              "Value": "\u0060\u0060\u0060{TARGETSTEAMID}\u0060\u0060\u0060",
+              "Inline": true
+            },
+            {
+              "Name": "{Localizer|Embed.Profile}",
+              "Value": "[{Localizer|Embed.ClickHere}]({TARGETPROFILE})",
+              "Inline": true
+            },
+            {
+              "Name": "-----------------------------------------------------------------------------------",
+              "Value": "\u200B",
+              "Inline": false
+            },
+            {
+              "Name": "{Localizer|Embed.Reason}",
+              "Value": "\u0060\u0060\u0060{REASON}\u0060\u0060\u0060",
+              "Inline": false
+            },
+            {
+              "Name": "\u200B",
+              "Value": "{SERVERIP}",
+              "Inline": false
+            },
+            {
+              "Name": "\u200B",
+              "Value": "\u200B",
+              "Inline": true
+            },
+            {
+              "Name": "\u200B",
+              "Value": "\u231A {CURRENTTIME|-3|dd/MM/yyyy} | {CURRENTTIME|-3|HH:mm:ss}",
+              "Inline": true
+            },
+            {
+              "Name": "\u200B",
+              "Value": "\u200B",
+              "Inline": true
+            }
+          ]
+        }
+      ]
+    },
 ```
 ## Commands 
 - **`report`** - Reports a Player; **(`#css/admin` group is required for use)**
