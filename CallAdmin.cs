@@ -95,7 +95,7 @@ public partial class CallAdmin : BasePlugin, IPluginConfig<CallAdminConfig>
   private HookResult OnPlayerChat(CCSPlayerController? player, CommandInfo info)
   {
     if (player == null || !player.IsValid || player.IsBot) return HookResult.Continue;
-    Console.WriteLine("Chat");
+
     var findPlayer = CustomMessagePlayers.Find(obj => obj.Player == (int)player.Index);
 
     if (findPlayer == null || !findPlayer.HandleMessage || findPlayer.Target == null ||
